@@ -1,4 +1,15 @@
-"""Database models layer (Deferred to Phase 1: Database + Backend Foundation).
+"""Database models layer for JobWatch AI (Phase 1)."""
 
-This layer will define SQLAlchemy ORM models, table mappings, and relations.
-"""
+from app.models.base import Base, GUID, TimestampMixin
+from app.models.career_source import CareerSource
+from app.models.company import Company
+from app.models.job import Job
+
+__all__ = [
+    "Base",
+    "GUID",
+    "TimestampMixin",
+    "Company",
+    "CareerSource",
+    "Job",
+]

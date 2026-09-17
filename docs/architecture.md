@@ -39,7 +39,7 @@ The end-to-end platform workflow spans from career portal discovery to user aler
                                v
        +-----------------------------------------------+
        |       Database (PostgreSQL + Repositories)    |
-       |      (Phase 1: Persistence & Data Access)     |
+       |        (Phase 1: Persistence Layer - ACTIVE)  |
        +-----------------------------------------------+
                                |
                                v
@@ -74,18 +74,21 @@ The end-to-end platform workflow spans from career portal discovery to user aler
 The backend follows a layered architecture with strict separation of concerns:
 
 ```text
-backend/app/
-├── api/            # HTTP Routers & Controllers (FastAPI)
-├── core/           # Configuration, Security, Environment (Pydantic Settings)
-├── models/         # Database ORM Entities (Phase 1: SQLAlchemy)
-├── schemas/        # Request/Response Validation DTOs (Pydantic)
-├── services/       # Domain Business Logic & Workflow Orchestration
-├── repositories/   # Data Access Layer & Query Abstraction (Phase 1)
-├── workers/        # Asynchronous Job Execution & Schedulers (Phase 3)
-├── connectors/     # External Career Portal Integrations (Phase 2)
-├── ai/             # LLM Orchestration & Embeddings (Phase 7+)
-├── notifications/  # Alert Delivery Channels (Phase 8)
-└── main.py         # Application Entrypoint & Middleware Assembly
+backend/
+├── alembic/        # Schema migrations & database versioning
+├── app/
+│   ├── api/        # HTTP Routers & Controllers (FastAPI)
+│   ├── core/       # Configuration, engine, connection pool, sessionmaker
+│   ├── models/     # Declarative SQLAlchemy 2.x Entities (Company, CareerSource, Job)
+│   ├── schemas/    # Request/Response Validation DTOs (Pydantic v2)
+│   ├── services/   # Domain Business Logic & Workflow Orchestration (Phase 2+)
+│   ├── repositories/ # Data Access Repositories (Company, CareerSource, Job)
+│   ├── workers/    # Background Job Execution & Schedulers (Phase 3)
+│   ├── connectors/ # External Career Portal Integrations (Phase 2)
+│   ├── ai/         # LLM Orchestration & Embeddings (Phase 7+)
+│   ├── notifications/ # Alert Delivery Channels (Phase 8)
+│   └── main.py     # Application Entrypoint & Middleware Assembly
+└── tests/          # Pytest Test Suite
 ```
 
 ### Layer Responsibilities & Strict Boundaries
@@ -93,8 +96,8 @@ backend/app/
 | Module | Core Responsibility | Prohibited Dependencies |
 | :--- | :--- | :--- |
 | `api/` | Route handling, HTTP status codes, request parsing | Direct database queries, business calculations |
-| `core/` | Configuration, logging, global singletons | Direct route definitions, domain models |
-| `models/` | Relational schema definitions (Phase 1) | HTTP schemas, external API clients |
+| `core/` | Configuration, database engine, pooling, sessionmaker | Direct route definitions, domain entities |
+| `models/` | Relational schema definitions (SQLAlchemy 2.x) | HTTP schemas, external API clients |
 | `schemas/` | Serialization, schema validation, DTOs | Database sessions, SQL queries |
 | `services/` | Business rules, domain workflows | Direct HTTP response formatting |
 | `repositories/`| CRUD operations, query optimization | HTTP concepts, direct presentation logic |
@@ -123,17 +126,14 @@ frontend/src/
 └── index.css       # Design tokens and global CSS
 ```
 
-### Responsibilities
-
-- **`services/`**: All network interaction with the backend is isolated in `services/`. Components never make raw `fetch` calls directly.
-- **`types/`**: Interfaces mirror the backend Pydantic schemas, ensuring end-to-end type safety.
-- **`components/` vs `pages/`**: Reusable widgets live in `components/`, while route-level views live in `pages/`.
-
 ---
 
 ## 5. Architectural Decisions (ADR Summary)
 
-1. **Monorepo Layout**: Backend (`Python/FastAPI`) and Frontend (`React/TypeScript/Vite`) reside in a unified repository with shared documentation and docker orchestration, simplifying versioning and cross-stack coordination.
+1. **Monorepo Layout**: Backend (`Python/FastAPI`) and Frontend (`React/TypeScript/Vite`) reside in a unified repository with shared documentation and docker orchestration.
 2. **Configuration via Pydantic Settings**: Eliminates ad-hoc `os.environ` lookups, validates environment variables at startup, and provides IDE autocompletion.
-3. **Phase Isolation**: Only components required for Phase 0 are operational. Future components exist strictly as package boundaries to prevent premature overengineering.
-4. **Health Endpoint Standard**: Both `/health` and `/api/v1/health` are exposed for container orchestrators (Kubernetes/ECS) and API consumers.
+3. **Phase 1 Persistence Strategy**: PostgreSQL as standard database, modern SQLAlchemy 2.x `DeclarativeBase` with timezone-aware UTC timestamps, UUID primary keys (`app.models.base.GUID`), and Alembic migrations.
+4. **Repository Pattern**: All database interactions are encapsulated behind repositories (`CompanyRepository`, `CareerSourceRepository`, `JobRepository`), strictly preventing HTTP handlers or future scrapers from writing raw queries.
+5. **Two-Tier Health Probes**:
+   - `GET /health` (`GET /api/v1/health`): Process liveness probe.
+   - `GET /api/v1/health/db`: Database connectivity readiness probe running lightweight `SELECT 1`.

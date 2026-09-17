@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { fetchHealth } from './services/api'
-import { HealthCheckResponse } from './types/api'
+import { fetchDbHealth, fetchHealth } from './services/api'
+import { DatabaseHealthCheckResponse, HealthCheckResponse } from './types/api'
 
 export function App() {
   const [health, setHealth] = useState<HealthCheckResponse | null>(null)
+  const [dbHealth, setDbHealth] = useState<DatabaseHealthCheckResponse | null>(null)
   const [status, setStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
+  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -24,6 +26,19 @@ export function App() {
         }
       })
 
+    fetchDbHealth()
+      .then((data) => {
+        if (isMounted) {
+          setDbHealth(data)
+          setDbStatus('connected')
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setDbStatus('disconnected')
+        }
+      })
+
     return () => {
       isMounted = false
     }
@@ -32,26 +47,26 @@ export function App() {
   return (
     <div className="container">
       <header className="header">
-        <span className="badge">Phase 0</span>
+        <span className="badge">Phase 1</span>
         <h1 className="title">JobWatch AI</h1>
       </header>
 
       <p className="subtitle">
         Automated Career Portal Monitoring & Opportunity Intelligence.
-        Phase 0 establishes the architectural boundaries and project foundation.
+        Phase 1 establishes PostgreSQL persistence, SQLAlchemy 2.x models, Alembic migrations, and repositories.
       </p>
 
       <div className="status-card">
         <div className="status-row">
           <span className="status-label">Phase</span>
-          <span className="status-value">0 — Architecture & Project Setup</span>
+          <span className="status-value">1 — Database + Backend Foundation</span>
         </div>
         <div className="status-row">
           <span className="status-label">Frontend Status</span>
           <span className="status-value status-healthy">Operational</span>
         </div>
         <div className="status-row">
-          <span className="status-label">Backend Connection</span>
+          <span className="status-label">Backend Process</span>
           <span
             className={`status-value ${
               status === 'connected'
@@ -64,6 +79,22 @@ export function App() {
             {status === 'connected' && `Healthy (${health?.version})`}
             {status === 'checking' && 'Connecting to /api/v1/health...'}
             {status === 'disconnected' && `Disconnected (${errorMessage || 'Offline'})`}
+          </span>
+        </div>
+        <div className="status-row">
+          <span className="status-label">Database Readiness</span>
+          <span
+            className={`status-value ${
+              dbStatus === 'connected'
+                ? 'status-healthy'
+                : dbStatus === 'checking'
+                ? 'status-checking'
+                : 'status-error'
+            }`}
+          >
+            {dbStatus === 'connected' && `Connected (${dbHealth?.latency_ms} ms)`}
+            {dbStatus === 'checking' && 'Probing /api/v1/health/db...'}
+            {dbStatus === 'disconnected' && 'Disconnected / Offline'}
           </span>
         </div>
         {health && (
@@ -81,7 +112,7 @@ export function App() {
       </div>
 
       <p className="roadmap-preview">
-        Next milestone: Phase 1 — Database + Backend Foundation (PostgreSQL, SQLAlchemy, Alembic)
+        Next milestone: Phase 2 — Job Connectors (Standardized Career Portal Ingestion)
       </p>
     </div>
   )

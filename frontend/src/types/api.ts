@@ -9,3 +9,10 @@ export interface HealthCheckResponse {
   environment: string
   timestamp: string
 }
+
+export interface DatabaseHealthCheckResponse {
+  status: string
+  database: string
+  latency_ms: number
+  timestamp: string
+}

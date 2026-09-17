@@ -1,7 +1,7 @@
 """Application configuration management using Pydantic Settings."""
 
 from functools import lru_cache
-from typing import List, Union
+from typing import List, Optional, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -35,6 +35,15 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
+
+    # Database Configuration (Phase 1)
+    DATABASE_URL: str = "postgresql+psycopg://jobwatch:jobwatch_dev@localhost:5432/jobwatch"
+    TEST_DATABASE_URL: Optional[str] = None
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_TIMEOUT: int = 30
+    DB_POOL_RECYCLE: int = 1800
+    DB_ECHO: bool = False
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

@@ -15,3 +15,15 @@ class HealthResponse(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp of the health check in UTC",
     )
+
+
+class DatabaseHealthResponse(BaseModel):
+    """Schema representing database connectivity and readiness status."""
+
+    status: str = Field(..., description="Readiness status", json_schema_extra={"example": "healthy"})
+    database: str = Field(..., description="Database connectivity state", json_schema_extra={"example": "connected"})
+    latency_ms: float = Field(..., description="Round-trip latency in milliseconds", json_schema_extra={"example": 1.45})
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="Timestamp of the health probe in UTC",
+    )

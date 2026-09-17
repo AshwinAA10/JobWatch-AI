@@ -3,10 +3,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.endpoints.health import get_health
+from app.api.v1.endpoints.health import get_db_health, get_health
 from app.api.v1.router import api_router
 from app.core.config import get_settings
-from app.schemas.health import HealthResponse
+from app.schemas.health import DatabaseHealthResponse, HealthResponse
 
 settings = get_settings()
 
@@ -34,7 +34,17 @@ app.add_api_route(
     get_health,
     methods=["GET"],
     response_model=HealthResponse,
-    summary="Root Health Check",
+    summary="Root Process Health Check",
+    tags=["System"],
+)
+
+# Root-level database readiness probe
+app.add_api_route(
+    "/health/db",
+    get_db_health,
+    methods=["GET"],
+    response_model=DatabaseHealthResponse,
+    summary="Root Database Readiness Check",
     tags=["System"],
 )
 
@@ -49,6 +59,6 @@ def root_summary():
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "status": "operational",
-        "phase": "Phase 0 - Architecture & Project Setup",
+        "phase": "Phase 1 - Database + Backend Foundation",
         "docs": "/docs" if settings.DEBUG else "disabled",
     }

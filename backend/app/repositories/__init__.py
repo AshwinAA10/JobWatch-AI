@@ -1,4 +1,11 @@
-"""Data access and persistence abstraction layer (Deferred to Phase 1).
+"""Data access and persistence abstraction layer (Phase 1)."""
 
-Encapsulates database queries, session handling, and persistence logic.
-"""
+from app.repositories.career_source import CareerSourceRepository
+from app.repositories.company import CompanyRepository
+from app.repositories.job import JobRepository
+
+__all__ = [
+    "CompanyRepository",
+    "CareerSourceRepository",
+    "JobRepository",
+]

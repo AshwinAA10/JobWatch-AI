@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jobwatch-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobwatch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobwatch_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-jobwatch}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobwatch} -d ${POSTGRES_DB:-jobwatch}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -15,9 +33,16 @@ services:
       - BACKEND_PORT=8000
       - API_V1_STR=/api/v1
       - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
     volumes:
       - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
 
-# Future phase infrastructure (PostgreSQL, Redis, Workers) will be introduced in Phase 1+.
+volumes:
+  postgres_data:
+
+# Future phase infrastructure (Redis, Celery Workers) will be introduced in Phase 3+.

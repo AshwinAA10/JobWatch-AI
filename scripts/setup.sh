@@ -2,7 +2,7 @@
 set -e
 
 echo "==================================================="
-echo "Setting up JobWatch AI (Phase 0 Foundation)"
+echo "Setting up JobWatch AI (Phase 1 Foundation)"
 echo "==================================================="
 
 # 1. Copy .env if not present
@@ -25,7 +25,7 @@ pip install -r backend/requirements.txt
 
 # 3. Run backend tests
 echo "[*] Running backend tests..."
-pytest backend/tests
+pytest backend/tests -v
 
 # 4. Setup frontend dependencies
 echo "[*] Installing frontend dependencies..."
@@ -36,6 +36,12 @@ cd ..
 
 echo "==================================================="
 echo "Setup complete!"
+echo ""
+echo "To start database:"
+echo "  docker compose up -d postgres"
+echo ""
+echo "To apply migrations:"
+echo "  python -m alembic -c backend/alembic.ini upgrade head"
 echo ""
 echo "To start backend:"
 echo "  source .venv/bin/activate && uvicorn app.main:app --app-dir backend --port 8000 --reload"
