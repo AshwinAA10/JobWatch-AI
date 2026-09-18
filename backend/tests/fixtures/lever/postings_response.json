@@ -1,0 +1,50 @@
+[
+  {
+    "id": "lev-101",
+    "text": "Senior Backend Engineer",
+    "createdAt": 1716000000000,
+    "hostedUrl": "https://jobs.lever.co/acme/lev-101",
+    "applyUrl": "https://jobs.lever.co/acme/lev-101/apply",
+    "description": "<p>Build scalable services using Python and FastAPI.</p>",
+    "descriptionPlain": "Build scalable services using Python and FastAPI.",
+    "additional": "Competitive benefits package.",
+    "workplaceType": "remote",
+    "categories": {
+      "commitment": "Full time",
+      "department": "R&D",
+      "team": "Platform",
+      "location": "San Francisco, CA"
+    },
+    "country": "US"
+  },
+  {
+    "id": "lev-102",
+    "text": "Product Designer",
+    "createdAt": 1716100000000,
+    "hostedUrl": "https://jobs.lever.co/acme/lev-102",
+    "applyUrl": "https://jobs.lever.co/acme/lev-102/apply",
+    "description": "<div>Design beautiful user experiences.</div>",
+    "descriptionPlain": "Design beautiful user experiences.",
+    "workplaceType": "hybrid",
+    "categories": {
+      "commitment": "Part-time",
+      "department": "Design",
+      "team": "Product",
+      "location": "New York, NY"
+    },
+    "country": "US"
+  },
+  {
+    "id": "lev-103",
+    "text": "Contract QA Specialist",
+    "createdAt": null,
+    "hostedUrl": "https://jobs.lever.co/acme/lev-103",
+    "applyUrl": null,
+    "description": "Quality assurance and automated testing.",
+    "workplaceType": "onsite",
+    "categories": {
+      "commitment": "Contract",
+      "location": "Austin, TX"
+    }
+  }
+]

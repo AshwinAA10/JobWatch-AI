@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 1 — Database + Backend Foundation
-Status: Persistence Layer & Backend Architecture Established & Verified
+Current Phase: Phase 2 — Job Connectors & Job Ingestion
+Status: Extensible Job Ingestion & Normalization Layer Established & Verified
 ```
 
-Phase 1 establishes PostgreSQL integration, modern SQLAlchemy 2.x declarative models (`Company`, `CareerSource`, `Job`), Alembic schema migrations, repository pattern for data access, connection pooling, and the `/api/v1/health/db` readiness probe.
+Phase 2 establishes a provider-independent ingestion architecture supporting Greenhouse, Lever, and Workday career portals. Features include the `BaseJobConnector` abstraction, `NormalizedJob` schema, `ConnectorHttpClient` with bounded retries and rate-limit backoff, `JobIngestionService` orchestrating database upserts with composite key protection, and CLI/API testing utilities.
 
 ---
 
@@ -31,7 +31,7 @@ Phase 1 establishes PostgreSQL integration, modern SQLAlchemy 2.x declarative mo
 
 - [x] **Phase 0** — Architecture & Project Setup *(Completed)*
 - [x] **Phase 1** — Database + Backend Foundation *(Completed)*
-- [ ] **Phase 2** — Job Connectors
+- [x] **Phase 2** — Job Connectors *(Completed)*
 - [ ] **Phase 3** — Monitoring Engine
 - [ ] **Phase 4** — Deduplication
 - [ ] **Phase 5** — User Profiles
@@ -223,5 +223,6 @@ Visit the frontend at: `http://localhost:5173`
 ## 8. Documentation
 
 - [Architecture Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/architecture.md)
+- [Connectors Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/connectors.md)
 - [Database Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/database.md)
 - [Development Guide](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/development.md)

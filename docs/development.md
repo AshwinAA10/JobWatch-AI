@@ -110,7 +110,34 @@ Interactive API documentation and probes will be available at:
 
 ---
 
-## 5. Frontend Setup
+## 5. Testing Job Connectors (Phase 2)
+
+### Connector CLI Test Harness
+JobWatch AI includes a development CLI tool to test fetching and normalizing jobs from real career portals without needing database persistence:
+
+```bash
+# Greenhouse Board
+.venv\Scripts\python -m app.connectors.cli --source-type greenhouse --url https://boards.greenhouse.io/stripe --limit 3
+
+# Lever Board
+.venv\Scripts\python -m app.connectors.cli --source-type lever --url https://jobs.lever.co/netflix --limit 3
+
+# Workday Portal
+.venv\Scripts\python -m app.connectors.cli --source-type workday --url https://adobe.wd5.myworkdayjobs.com/en-US/external_careers --limit 3
+```
+
+### Manual Source Sync Dev Endpoint
+To trigger an end-to-end ingestion and persistence for an existing `CareerSource` record:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/sources/{source_id}/sync
+```
+
+Returns a structured `IngestionResult` JSON object with counts for `jobs_fetched`, `jobs_persisted`, `jobs_updated`, `jobs_skipped`, and `duration_seconds`.
+
+---
+
+## 6. Frontend Setup
 
 1. Navigate to `frontend/` and install dependencies:
 

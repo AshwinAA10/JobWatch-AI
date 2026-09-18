@@ -1,6 +1,7 @@
 """Repository for Job data access operations."""
 
-from typing import List, Optional
+from datetime import datetime, timezone
+from typing import List, Optional, Tuple
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -35,6 +36,73 @@ class JobRepository:
         self.db.commit()
         self.db.refresh(job)
         return job
+
+    def upsert(self, job_in: JobCreate) -> Tuple[Job, bool]:
+        """Upsert a job opening using (career_source_id, external_id) composite key.
+        
+        If a job with the given career_source_id and external_id already exists:
+            - Refreshes last_seen_at timestamp to now (UTC).
+            - Updates mutable attributes (title, description, urls, location).
+            - Ensures is_active is set to True.
+            - Returns (job, False) indicating an update.
+        Otherwise:
+            - Inserts a new job record.
+            - Returns (job, True) indicating a new record was created.
+        """
+        existing: Optional[Job] = None
+        if job_in.external_id:
+            existing = self.get_by_external_id(
+                job_in.career_source_id,
+                job_in.external_id,
+            )
+
+        now_utc = datetime.now(timezone.utc)
+
+        if existing is not None:
+            # Update attributes and refresh last_seen_at
+            existing.title = job_in.title
+            if job_in.description is not None:
+                existing.description = job_in.description
+            if job_in.location is not None:
+                existing.location = job_in.location
+            if job_in.employment_type is not None:
+                existing.employment_type = job_in.employment_type
+            if job_in.workplace_type is not None:
+                existing.workplace_type = job_in.workplace_type
+            if job_in.application_url is not None:
+                existing.application_url = job_in.application_url
+            if job_in.source_url is not None:
+                existing.source_url = job_in.source_url
+            if job_in.posted_at is not None:
+                existing.posted_at = job_in.posted_at
+            existing.is_active = True
+            existing.last_seen_at = now_utc
+
+            self.db.commit()
+            self.db.refresh(existing)
+            return existing, False
+
+        # Create new job
+        new_job = Job(
+            company_id=job_in.company_id,
+            career_source_id=job_in.career_source_id,
+            external_id=job_in.external_id,
+            title=job_in.title,
+            description=job_in.description,
+            location=job_in.location,
+            employment_type=job_in.employment_type,
+            workplace_type=job_in.workplace_type,
+            application_url=job_in.application_url,
+            source_url=job_in.source_url,
+            posted_at=job_in.posted_at,
+            first_seen_at=now_utc,
+            last_seen_at=now_utc,
+            is_active=job_in.is_active,
+        )
+        self.db.add(new_job)
+        self.db.commit()
+        self.db.refresh(new_job)
+        return new_job, True
 
     def get_by_id(self, job_id: UUID) -> Optional[Job]:
         """Fetch a single Job by ID."""

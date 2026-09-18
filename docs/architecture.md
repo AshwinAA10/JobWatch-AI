@@ -8,20 +8,64 @@ By connecting directly to target company portals, normalizing disparate job post
 
 ---
 
-## 2. High-Level System Architecture
+## 2. High-Level Ingestion Architecture (Phase 2)
+
+```text
+                    ┌───────────────────┐
+                    │  Career Sources   │
+                    │    PostgreSQL     │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ Connector Factory │
+                    └─────────┬─────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+        Greenhouse          Lever          Workday
+        Connector         Connector       Connector
+              │               │               │
+              └───────────────┼───────────────┘
+                              ▼
+                    ┌───────────────────┐
+                    │  Normalized Jobs  │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ Ingestion Service │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │   JobRepository   │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │    PostgreSQL     │
+                    └───────────────────┘
+```
+
+> **Note on Roadmap Phasing**: The **Monitoring Engine** (scheduled polling loops, cron triggers, distributed workers) is intentionally a future **Phase 3** component. In Phase 2, job connectors and the ingestion service are triggered on-demand or through development harnesses.
+
+---
+
+## 3. End-to-End System Workflow (Roadmap Context)
 
 The end-to-end platform workflow spans from career portal discovery to user alerts:
 
 ```text
        +-----------------------------------------------+
        |           Target Career Portals               |
-       |  (Greenhouse, Lever, Workday, Custom APIs)     |
+       |  (Greenhouse, Lever, Workday, Custom APIs)    |
        +-----------------------------------------------+
                                |
                                v
        +-----------------------------------------------+
        |             Job Connectors                    |
-       |       (Phase 2: Standardized Ingestion)       |
+       |    (Phase 2: Standardized Ingestion - ACTIVE) |
        +-----------------------------------------------+
                                |
                                v

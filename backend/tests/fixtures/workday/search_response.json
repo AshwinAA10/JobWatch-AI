@@ -1,0 +1,28 @@
+{
+  "total": 3,
+  "limit": 20,
+  "offset": 0,
+  "jobPostings": [
+    {
+      "title": "Staff Platform Engineer",
+      "externalPath": "/job/San-Francisco/Staff-Platform-Engineer_JR-100234",
+      "bulletFields": ["JR-100234", "Posted 2 Days Ago"],
+      "locationsText": "San Francisco, CA",
+      "timeType": "Full time"
+    },
+    {
+      "title": "Data Scientist",
+      "externalPath": "/job/New-York/Data-Scientist_R-98765",
+      "bulletFields": ["R-98765", "Posted 5 Days Ago"],
+      "locationsText": "New York, NY",
+      "timeType": "Full time"
+    },
+    {
+      "title": "Summer Intern - Engineering",
+      "externalPath": "/job/Remote/Summer-Intern_INT-44321",
+      "bulletFields": ["INT-44321"],
+      "locationsText": "Remote - USA",
+      "timeType": "Part time"
+    }
+  ]
+}

@@ -47,19 +47,19 @@ export function App() {
   return (
     <div className="container">
       <header className="header">
-        <span className="badge">Phase 1</span>
+        <span className="badge">Phase 2</span>
         <h1 className="title">JobWatch AI</h1>
       </header>
 
       <p className="subtitle">
         Automated Career Portal Monitoring & Opportunity Intelligence.
-        Phase 1 establishes PostgreSQL persistence, SQLAlchemy 2.x models, Alembic migrations, and repositories.
+        Phase 2 establishes normalized job connectors (Greenhouse, Lever, Workday) and ingestion service.
       </p>
 
       <div className="status-card">
         <div className="status-row">
           <span className="status-label">Phase</span>
-          <span className="status-value">1 — Database + Backend Foundation</span>
+          <span className="status-value">2 — Job Connectors & Job Ingestion</span>
         </div>
         <div className="status-row">
           <span className="status-label">Frontend Status</span>
@@ -112,7 +112,7 @@ export function App() {
       </div>
 
       <p className="roadmap-preview">
-        Next milestone: Phase 2 — Job Connectors (Standardized Career Portal Ingestion)
+        Next milestone: Phase 3 — Monitoring Engine (Scheduled Polling & Change Detection)
       </p>
     </div>
   )

@@ -1,0 +1,64 @@
+{
+  "jobs": [
+    {
+      "id": 4829101,
+      "title": "Senior Backend Engineer - Python",
+      "updated_at": "2026-03-15T14:30:00Z",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4829101",
+      "location": {
+        "name": "San Francisco, CA (Remote)"
+      },
+      "content": "<div><h2>Role Overview</h2><p>We are looking for an experienced engineer to scale our core platform.</p><ul><li>Design REST APIs</li><li>Optimize PostgreSQL queries</li></ul></div>",
+      "departments": [
+        {
+          "id": 101,
+          "name": "Engineering"
+        }
+      ],
+      "metadata": [
+        {
+          "id": 501,
+          "name": "Employment Type",
+          "value": "Full-Time",
+          "value_type": "single_select"
+        }
+      ]
+    },
+    {
+      "id": 4829102,
+      "title": "Data Engineering Intern",
+      "updated_at": "2026-03-16T09:15:00Z",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4829102",
+      "location": {
+        "name": "New York, NY"
+      },
+      "content": "<p>Join our summer internship program working with modern data pipelines.</p>",
+      "departments": [
+        {
+          "id": 102,
+          "name": "Data Science"
+        }
+      ],
+      "metadata": [
+        {
+          "id": 501,
+          "name": "Employment Type",
+          "value": "Internship",
+          "value_type": "single_select"
+        }
+      ]
+    },
+    {
+      "id": 4829103,
+      "title": "Technical Writer (Contract)",
+      "updated_at": "2026-03-17T11:00:00Z",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4829103",
+      "location": {
+        "name": "Remote, US"
+      },
+      "content": "<p>Write comprehensive developer guides and SDK documentation.</p>",
+      "departments": [],
+      "metadata": []
+    }
+  ]
+}

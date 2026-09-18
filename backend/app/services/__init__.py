@@ -1,4 +1,8 @@
-"""Business logic and service orchestration layer.
+"""Business logic and service orchestration layer for JobWatch AI (Phase 2)."""
 
-Future phases will house domain logic here, maintaining separation from HTTP controllers.
-"""
+from app.services.ingestion import IngestionResult, JobIngestionService
+
+__all__ = [
+    "JobIngestionService",
+    "IngestionResult",
+]
