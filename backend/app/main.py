@@ -1,14 +1,25 @@
-"""JobWatch AI - Main FastAPI Application Entrypoint."""
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.endpoints.health import get_db_health, get_health
 from app.api.v1.router import api_router
 from app.core.config import get_settings
+from app.monitoring.scheduler import get_scheduler
 from app.schemas.health import DatabaseHealthResponse, HealthResponse
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown lifecycle tasks."""
+    scheduler = get_scheduler()
+    if settings.MONITORING_ENABLED:
+        await scheduler.start()
+    yield
+    await scheduler.stop()
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -16,6 +27,7 @@ app = FastAPI(
     description="JobWatch AI - Automated Career Portal Monitoring & Opportunity Intelligence",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
+    lifespan=lifespan,
 )
 
 # CORS Configuration
@@ -59,6 +71,6 @@ def root_summary():
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "status": "operational",
-        "phase": "Phase 1 - Database + Backend Foundation",
+        "phase": "Phase 3 - Monitoring Engine",
         "docs": "/docs" if settings.DEBUG else "disabled",
     }

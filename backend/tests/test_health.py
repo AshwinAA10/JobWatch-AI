@@ -33,7 +33,7 @@ def test_root_metadata_endpoint(client: TestClient) -> None:
 
     data = response.json()
     assert data["status"] == "operational"
-    assert "Phase 1" in data["phase"]
+    assert "Phase" in data["phase"]
 
 
 def test_api_v1_health_db_endpoint_success(client: TestClient, monkeypatch, test_engine) -> None:

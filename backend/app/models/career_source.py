@@ -10,6 +10,7 @@ from app.models.base import Base, GUID, TimestampMixin
 if TYPE_CHECKING:
     from app.models.company import Company
     from app.models.job import Job
+    from app.models.monitoring_run import MonitoringRun
 
 
 class CareerSource(Base, TimestampMixin):
@@ -55,6 +56,11 @@ class CareerSource(Base, TimestampMixin):
     )
     jobs: Mapped[List["Job"]] = relationship(
         "Job",
+        back_populates="career_source",
+        cascade="all, delete-orphan",
+    )
+    monitoring_runs: Mapped[List["MonitoringRun"]] = relationship(
+        "MonitoringRun",
         back_populates="career_source",
         cascade="all, delete-orphan",
     )
