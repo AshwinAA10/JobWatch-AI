@@ -1,9 +1,19 @@
 """Job database entity."""
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 import uuid
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -11,6 +21,7 @@ from app.models.base import Base, GUID, TimestampMixin
 if TYPE_CHECKING:
     from app.models.career_source import CareerSource
     from app.models.company import Company
+    from app.models.job_duplicate import JobDuplicate
 
 
 class Job(Base, TimestampMixin):
@@ -24,6 +35,10 @@ class Job(Base, TimestampMixin):
             name="uq_jobs_source_external_id",
         ),
         Index("ix_jobs_company_active", "company_id", "is_active"),
+        CheckConstraint(
+            "canonical_job_id != id",
+            name="ck_jobs_no_self_canonical",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -111,6 +126,14 @@ class Job(Base, TimestampMixin):
         index=True,
     )
 
+    # Deduplication & Canonical Job Identity (Phase 4)
+    canonical_job_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        GUID(),
+        ForeignKey("jobs.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     # Relationships
     company: Mapped["Company"] = relationship(
         "Company",
@@ -119,6 +142,23 @@ class Job(Base, TimestampMixin):
     career_source: Mapped["CareerSource"] = relationship(
         "CareerSource",
         back_populates="jobs",
+    )
+    canonical_job: Mapped[Optional["Job"]] = relationship(
+        "Job",
+        remote_side=[id],
+        back_populates="duplicate_jobs",
+        foreign_keys=[canonical_job_id],
+    )
+    duplicate_jobs: Mapped[List["Job"]] = relationship(
+        "Job",
+        back_populates="canonical_job",
+        foreign_keys=[canonical_job_id],
+    )
+    duplicate_records: Mapped[List["JobDuplicate"]] = relationship(
+        "JobDuplicate",
+        foreign_keys="JobDuplicate.canonical_job_id",
+        back_populates="canonical_job",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:

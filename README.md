@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 3 — Monitoring Engine
-Status: Scheduled Monitoring Engine, Bounded Concurrency & Run Tracking Verified
+Current Phase: Phase 4 — Deduplication & Job Identity
+Status: Cross-Source Deduplication, Canonical Linking & Identity Engine Verified
 ```
 
-Phase 3 introduces an automated, asynchronous monitoring engine that schedules periodic polling cycles across registered `CareerSource` records, orchestrates job ingestion via Phase 2 connectors, enforces system-wide concurrency limits and same-source overlap protection, isolates errors across sources, supports transient retry backoff, and records comprehensive execution history (`MonitoringRun`) in PostgreSQL.
+Phase 4 introduces a deterministic, explainable cross-source job deduplication and identity engine. It evaluates candidate postings across providers within company boundaries, enforces strict false-positive prevention and hard contradictions, resolves canonical roots, and creates directed `JobDuplicate` relationships without deleting any source records.
 
 ---
 
@@ -33,7 +33,7 @@ Phase 3 introduces an automated, asynchronous monitoring engine that schedules p
 - [x] **Phase 1** — Database + Backend Foundation *(Completed)*
 - [x] **Phase 2** — Job Connectors *(Completed)*
 - [x] **Phase 3** — Monitoring Engine *(Completed)*
-- [ ] **Phase 4** — Deduplication
+- [x] **Phase 4** — Deduplication *(Completed)*
 - [ ] **Phase 5** — User Profiles
 - [ ] **Phase 6** — Matching Engine
 - [ ] **Phase 7** — AI Intelligence
@@ -225,5 +225,6 @@ Visit the frontend at: `http://localhost:5173`
 - [Architecture Specification](docs/architecture.md)
 - [Connectors Specification](docs/connectors.md)
 - [Monitoring Engine Specification](docs/monitoring.md)
+- [Deduplication Specification](docs/deduplication.md)
 - [Database Specification](docs/database.md)
 - [Development Guide](docs/development.md)

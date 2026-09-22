@@ -114,6 +114,7 @@ class JobIngestionService:
         skipped_count = 0
         errors: List[str] = []
 
+        persisted_jobs: List[Job] = []
         for item in normalized_jobs:
             try:
                 job_in = JobCreate(
@@ -130,7 +131,8 @@ class JobIngestionService:
                     posted_at=item.posted_at,
                     is_active=True,
                 )
-                _, created = self.job_repo.upsert(job_in)
+                job, created = self.job_repo.upsert(job_in)
+                persisted_jobs.append(job)
                 if created:
                     persisted_count += 1
                 else:
@@ -140,6 +142,18 @@ class JobIngestionService:
                 error_msg = f"Failed to persist job '{item.title}' (external_id={item.external_id}): {exc}"
                 logger.error(error_msg)
                 errors.append(error_msg)
+
+        # Phase 4: Deduplicate newly persisted/updated jobs within company boundary
+        from app.core.config import get_settings
+        from app.deduplication.service import DeduplicationService
+        settings = get_settings()
+        if settings.DEDUP_ENABLED and persisted_jobs:
+            try:
+                dedup_service = DeduplicationService(self.db, settings=settings)
+                dedup_service.deduplicate_batch(persisted_jobs)
+            except Exception as exc:
+                logger.error("Deduplication error during ingestion for source %s: %s", source.id, exc)
+                # Note: raw jobs remain safely persisted (Section 51: Do not block ingestion unnecessarily)
 
         elapsed = round(time.perf_counter() - start_time, 3)
 

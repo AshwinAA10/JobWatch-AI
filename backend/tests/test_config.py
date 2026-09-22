@@ -61,3 +61,36 @@ def test_monitoring_settings_validation():
     with pytest.raises(ValidationError):
         Settings(MONITORING_SOURCE_TIMEOUT_SECONDS=0)
 
+
+def test_dedup_settings_defaults():
+    """Verify default deduplication configuration values."""
+    settings = get_settings()
+
+    assert settings.DEDUP_ENABLED is True
+    assert settings.DEDUP_HIGH_THRESHOLD == 0.90
+    assert settings.DEDUP_MEDIUM_THRESHOLD == 0.75
+    assert settings.DEDUP_MAX_CANDIDATES == 100
+    assert settings.DEDUP_LOOKBACK_DAYS == 90
+
+
+def test_dedup_settings_validation():
+    """Verify that invalid deduplication parameters raise validation errors."""
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        Settings(DEDUP_HIGH_THRESHOLD=1.5)
+
+    with pytest.raises(ValidationError):
+        Settings(DEDUP_HIGH_THRESHOLD=-0.1)
+
+    with pytest.raises(ValidationError):
+        Settings(DEDUP_MEDIUM_THRESHOLD=-0.1)
+
+    with pytest.raises(ValidationError):
+        Settings(DEDUP_MAX_CANDIDATES=0)
+
+    with pytest.raises(ValidationError):
+        Settings(DEDUP_LOOKBACK_DAYS=0)
+
+

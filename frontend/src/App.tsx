@@ -47,19 +47,19 @@ export function App() {
   return (
     <div className="container">
       <header className="header">
-        <span className="badge">Phase 3</span>
+        <span className="badge">Phase 4</span>
         <h1 className="title">JobWatch AI</h1>
       </header>
 
       <p className="subtitle">
         Automated Career Portal Monitoring & Opportunity Intelligence.
-        Phase 3 establishes asynchronous periodic monitoring, bounded concurrency, same-source locking, and run tracking.
+        Phase 4 establishes deterministic cross-source deduplication, job identity resolution, canonical linking, and false-positive prevention.
       </p>
 
       <div className="status-card">
         <div className="status-row">
           <span className="status-label">Phase</span>
-          <span className="status-value">3 — Monitoring Engine</span>
+          <span className="status-value">4 — Deduplication & Job Identity</span>
         </div>
         <div className="status-row">
           <span className="status-label">Frontend Status</span>
@@ -112,7 +112,7 @@ export function App() {
       </div>
 
       <p className="roadmap-preview">
-        Next milestone: Phase 4 — Deduplication (Identity Resolution & Cross-Source Matching)
+        Next milestone: Phase 5 — User Profiles (Preferences, Resumes & Opportunity Criteria)
       </p>
     </div>
   )

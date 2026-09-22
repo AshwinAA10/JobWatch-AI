@@ -60,7 +60,39 @@ CareerSource
      SUCCESS     PARTIAL       FAILED
 ```
 
-> **Roadmap Note**: Phase 3 automates periodic execution, provides development trigger APIs, and records `MonitoringRun` metrics. Semantic deduplication, candidate matching, notifications, and dashboard UIs remain strictly scoped to Phases 4+.
+```text
+                     ┌─────────────────┐
+                     │    Scheduler    │
+                     └────────┬────────┘
+                              ↓
+                     ┌─────────────────┐
+                     │    Monitoring   │
+                     │     Engine      │
+                     └────────┬────────┘
+                              ↓
+                     ┌─────────────────┐
+                     │    Connector    │
+                     └────────┬────────┘
+                              ↓
+                     ┌─────────────────┐
+                     │ Job Ingestion   │
+                     └────────┬────────┘
+                              ↓
+                     ┌─────────────────┐
+                     │     Job DB      │
+                     └────────┬────────┘
+                              ↓
+                     ┌─────────────────┐
+                     │ Deduplication   │
+                     │     Engine      │
+                     └────────┬────────┘
+                              ↓
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+             Canonical Job       Duplicate Link
+```
+
+> **Roadmap Note**: Phase 4 establishes deterministic cross-source job deduplication, canonical job linking, and false-positive prevention. User profiles, candidate matching, AI/LLMs, notifications, and dashboard UIs remain strictly scoped to Phases 5+.
 
 ---
 
@@ -83,13 +115,13 @@ The end-to-end platform workflow spans from career portal discovery to user aler
                                v
        +-----------------------------------------------+
        |            Monitoring Engine                  |
-       |        (Phase 3: Scheduled Dispatch)          |
+       |        (Phase 3: Scheduled Dispatch - ACTIVE) |
        +-----------------------------------------------+
                                |
                                v
        +-----------------------------------------------+
        |          Deduplication & Storage              |
-       |       (Phase 4: Hashing & Canonicalization)   |
+       |   (Phase 4: Identity & Canonicalization-ACTIVE)|
        +-----------------------------------------------+
                                |
                                v

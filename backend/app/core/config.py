@@ -53,6 +53,41 @@ class Settings(BaseSettings):
     MONITORING_RETRY_BACKOFF_SECONDS: float = 5.0
     MONITORING_SOURCE_TIMEOUT_SECONDS: float = 120.0
 
+    # Deduplication & Job Identity Configuration (Phase 4)
+    DEDUP_ENABLED: bool = True
+    DEDUP_HIGH_THRESHOLD: float = 0.90
+    DEDUP_MEDIUM_THRESHOLD: float = 0.75
+    DEDUP_MAX_CANDIDATES: int = 100
+    DEDUP_LOOKBACK_DAYS: int = 90
+
+    @field_validator("DEDUP_HIGH_THRESHOLD")
+    @classmethod
+    def validate_high_threshold(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError("DEDUP_HIGH_THRESHOLD must be between 0.0 and 1.0")
+        return v
+
+    @field_validator("DEDUP_MEDIUM_THRESHOLD")
+    @classmethod
+    def validate_medium_threshold(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError("DEDUP_MEDIUM_THRESHOLD must be between 0.0 and 1.0")
+        return v
+
+    @field_validator("DEDUP_MAX_CANDIDATES")
+    @classmethod
+    def validate_max_candidates(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("DEDUP_MAX_CANDIDATES must be greater than 0")
+        return v
+
+    @field_validator("DEDUP_LOOKBACK_DAYS")
+    @classmethod
+    def validate_lookback_days(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("DEDUP_LOOKBACK_DAYS must be greater than 0")
+        return v
+
     @field_validator("MONITORING_INTERVAL_SECONDS")
     @classmethod
     def validate_interval(cls, v: int) -> int:
