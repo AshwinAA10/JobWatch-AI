@@ -130,11 +130,14 @@ def test_monitoring_service_transient_retry_and_recovery(db_session: Session):
 
     mock_success = IngestionResult(
         source_id=source.id,
+        company_id=source.company_id,
+        source_type="greenhouse",
         jobs_fetched=2,
         jobs_persisted=2,
         jobs_updated=0,
         jobs_skipped=0,
         errors=[],
+        duration_seconds=0.10,
     )
 
     call_count = 0

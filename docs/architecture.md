@@ -8,47 +8,59 @@ By connecting directly to target company portals, normalizing disparate job post
 
 ---
 
-## 2. High-Level Ingestion Architecture (Phase 2)
+## 2. High-Level Ingestion & Monitoring Architecture (Phase 3 Active)
 
 ```text
-                    ┌───────────────────┐
-                    │  Career Sources   │
-                    │    PostgreSQL     │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-                    ┌───────────────────┐
-                    │ Connector Factory │
-                    └─────────┬─────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-        Greenhouse          Lever          Workday
-        Connector         Connector       Connector
-              │               │               │
-              └───────────────┼───────────────┘
-                              ▼
-                    ┌───────────────────┐
-                    │  Normalized Jobs  │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-                    ┌───────────────────┐
-                    │ Ingestion Service │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-                    ┌───────────────────┐
-                    │   JobRepository   │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-                    ┌───────────────────┐
-                    │    PostgreSQL     │
-                    └───────────────────┘
+                         ┌─────────────────────┐
+                         │ MonitoringScheduler │
+                         └──────────┬──────────┘
+                                    │ Periodic cycle / Manual trigger
+                                    ▼
+                         ┌─────────────────────┐
+                         │ MonitoringExecutor  │
+                         └──────────┬──────────┘
+                                    │ Concurrency control & same-source locks
+                                    ▼
+                         ┌─────────────────────┐
+                         │  MonitoringService  │
+                         └──────────┬──────────┘
+                                    │ Retry policy & run recording
+                      ┌─────────────┴─────────────┐
+                      ▼                           ▼
+               CareerSource A              CareerSource B
+                      │                           │
+                      ▼                           ▼
+               ConnectorFactory            ConnectorFactory
+                      │                           │
+                      ▼                           ▼
+            Greenhouse / Lever / Workday  Greenhouse / Lever / Workday
+                      │                           │
+                      └─────────────┬─────────────┘
+                                    ▼
+                         JobIngestionService
+                                    │
+                                    ▼
+                              JobRepository
+                                    │
+                                    ▼
+                               PostgreSQL
 ```
 
-> **Note on Roadmap Phasing**: The **Monitoring Engine** (scheduled polling loops, cron triggers, distributed workers) is intentionally a future **Phase 3** component. In Phase 2, job connectors and the ingestion service are triggered on-demand or through development harnesses.
+Monitoring history is recorded per execution attempt:
+
+```text
+CareerSource
+     │
+     └──────────────┐
+                    ▼
+              MonitoringRun
+                    │
+        ┌───────────┼────────────┐
+        ▼           ▼            ▼
+     SUCCESS     PARTIAL       FAILED
+```
+
+> **Roadmap Note**: Phase 3 automates periodic execution, provides development trigger APIs, and records `MonitoringRun` metrics. Semantic deduplication, candidate matching, notifications, and dashboard UIs remain strictly scoped to Phases 4+.
 
 ---
 

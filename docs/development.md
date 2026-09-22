@@ -137,7 +137,52 @@ Returns a structured `IngestionResult` JSON object with counts for `jobs_fetched
 
 ---
 
-## 6. Frontend Setup
+## 6. Testing Monitoring Engine (Phase 3)
+
+### Enabling the Periodic Scheduler
+By default, `MONITORING_ENABLED` is set to `False` to prevent background polling during development and testing. To enable automatic background monitoring in `.env`:
+
+```env
+MONITORING_ENABLED=true
+MONITORING_INTERVAL_SECONDS=900
+MONITORING_MAX_CONCURRENCY=5
+MONITORING_MAX_RETRIES=2
+MONITORING_RETRY_BACKOFF_SECONDS=5.0
+MONITORING_SOURCE_TIMEOUT_SECONDS=120.0
+```
+
+### Inspecting Scheduler Operational State
+Query the scheduler status and next scheduled execution time:
+
+```bash
+curl http://localhost:8000/api/v1/monitoring/status
+```
+
+### Triggering Manual Monitoring Runs
+Trigger a monitored execution for a registered career source (enforcing concurrency limits, same-source locking, and run history recording):
+
+```bash
+# Single source
+curl -X POST http://localhost:8000/api/v1/monitoring/run/{source_id}
+
+# All active sources concurrently
+curl -X POST http://localhost:8000/api/v1/monitoring/run-all
+```
+
+### Viewing Monitoring Run History
+Retrieve recent monitoring runs with optional filtering:
+
+```bash
+# List latest 20 runs
+curl "http://localhost:8000/api/v1/monitoring/runs?limit=20"
+
+# Filter by career source and status
+curl "http://localhost:8000/api/v1/monitoring/runs?career_source_id={source_id}&status=SUCCESS"
+```
+
+---
+
+## 7. Frontend Setup
 
 1. Navigate to `frontend/` and install dependencies:
 

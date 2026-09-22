@@ -47,19 +47,19 @@ export function App() {
   return (
     <div className="container">
       <header className="header">
-        <span className="badge">Phase 2</span>
+        <span className="badge">Phase 3</span>
         <h1 className="title">JobWatch AI</h1>
       </header>
 
       <p className="subtitle">
         Automated Career Portal Monitoring & Opportunity Intelligence.
-        Phase 2 establishes normalized job connectors (Greenhouse, Lever, Workday) and ingestion service.
+        Phase 3 establishes asynchronous periodic monitoring, bounded concurrency, same-source locking, and run tracking.
       </p>
 
       <div className="status-card">
         <div className="status-row">
           <span className="status-label">Phase</span>
-          <span className="status-value">2 — Job Connectors & Job Ingestion</span>
+          <span className="status-value">3 — Monitoring Engine</span>
         </div>
         <div className="status-row">
           <span className="status-label">Frontend Status</span>
@@ -112,7 +112,7 @@ export function App() {
       </div>
 
       <p className="roadmap-preview">
-        Next milestone: Phase 3 — Monitoring Engine (Scheduled Polling & Change Detection)
+        Next milestone: Phase 4 — Deduplication (Identity Resolution & Cross-Source Matching)
       </p>
     </div>
   )

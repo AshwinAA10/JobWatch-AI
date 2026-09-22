@@ -43,22 +43,20 @@ def test_monitoring_ingestion_end_to_end(db_session: Session):
         NormalizedJob(
             external_id="gh-101",
             title="Senior Backend Engineer",
-            url="https://boards.greenhouse.io/integrationtech/jobs/101",
+            application_url="https://boards.greenhouse.io/integrationtech/jobs/101",
             location="Remote",
             description="Build scalable distributed services in Python.",
-            department="Engineering",
             posted_at=datetime.now(timezone.utc),
-            metadata={"board": "integrationtech"},
+            raw_metadata={"board": "integrationtech"},
         ),
         NormalizedJob(
             external_id="gh-102",
             title="Lead DevOps Architect",
-            url="https://boards.greenhouse.io/integrationtech/jobs/102",
+            application_url="https://boards.greenhouse.io/integrationtech/jobs/102",
             location="New York, NY",
             description="Manage cloud infrastructure and CI/CD.",
-            department="Operations",
             posted_at=datetime.now(timezone.utc),
-            metadata={"board": "integrationtech"},
+            raw_metadata={"board": "integrationtech"},
         ),
     ]
 

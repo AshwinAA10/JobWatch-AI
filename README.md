@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 2 — Job Connectors & Job Ingestion
-Status: Extensible Job Ingestion & Normalization Layer Established & Verified
+Current Phase: Phase 3 — Monitoring Engine
+Status: Scheduled Monitoring Engine, Bounded Concurrency & Run Tracking Verified
 ```
 
-Phase 2 establishes a provider-independent ingestion architecture supporting Greenhouse, Lever, and Workday career portals. Features include the `BaseJobConnector` abstraction, `NormalizedJob` schema, `ConnectorHttpClient` with bounded retries and rate-limit backoff, `JobIngestionService` orchestrating database upserts with composite key protection, and CLI/API testing utilities.
+Phase 3 introduces an automated, asynchronous monitoring engine that schedules periodic polling cycles across registered `CareerSource` records, orchestrates job ingestion via Phase 2 connectors, enforces system-wide concurrency limits and same-source overlap protection, isolates errors across sources, supports transient retry backoff, and records comprehensive execution history (`MonitoringRun`) in PostgreSQL.
 
 ---
 
@@ -32,7 +32,7 @@ Phase 2 establishes a provider-independent ingestion architecture supporting Gre
 - [x] **Phase 0** — Architecture & Project Setup *(Completed)*
 - [x] **Phase 1** — Database + Backend Foundation *(Completed)*
 - [x] **Phase 2** — Job Connectors *(Completed)*
-- [ ] **Phase 3** — Monitoring Engine
+- [x] **Phase 3** — Monitoring Engine *(Completed)*
 - [ ] **Phase 4** — Deduplication
 - [ ] **Phase 5** — User Profiles
 - [ ] **Phase 6** — Matching Engine
@@ -222,7 +222,8 @@ Visit the frontend at: `http://localhost:5173`
 
 ## 8. Documentation
 
-- [Architecture Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/architecture.md)
-- [Connectors Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/connectors.md)
-- [Database Specification](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/database.md)
-- [Development Guide](file:///c:/Users/ashwi/Documents/Main%20Projects/JobWatch%20AI/docs/development.md)
+- [Architecture Specification](docs/architecture.md)
+- [Connectors Specification](docs/connectors.md)
+- [Monitoring Engine Specification](docs/monitoring.md)
+- [Database Specification](docs/database.md)
+- [Development Guide](docs/development.md)

@@ -8,7 +8,7 @@ This document specifies the design, implementation, configuration, and extension
 
 The connector architecture provides a provider-independent ingestion pipeline that isolates third-party Applicant Tracking System (ATS) structures from JobWatch AI core domain logic.
 
-The future Monitoring Engine (Phase 3) interacts strictly through the connector abstraction without knowing which career platform produced a job:
+The Monitoring Engine (Phase 3) interacts strictly through `JobIngestionService` and the connector abstraction without knowing which career platform produced a job (see [Monitoring Engine Specification](monitoring.md)):
 
 ```text
                  ┌────────────────────┐
