@@ -118,6 +118,126 @@ erDiagram
         timestamptz created_at "UTC"
         timestamptz updated_at "UTC"
     }
+
+    User ||--o| CandidateProfile : "owns (1:1)"
+    CandidateProfile ||--o{ CandidateSkill : "possesses (1:N)"
+    Skill ||--o{ CandidateSkill : "referenced_in (1:N)"
+    CandidateProfile ||--o{ Experience : "has (1:N)"
+    CandidateProfile ||--o{ Education : "has (1:N)"
+    CandidateProfile ||--o| CandidatePreferences : "specifies (1:1)"
+    CandidateProfile ||--o{ Resume : "uploads (1:N)"
+
+    User {
+        UUID id PK
+        string email UK "unique, indexed"
+        string password_hash "Argon2id"
+        boolean is_active "indexed, default true"
+        boolean is_verified "default false"
+        timestamptz last_login_at "nullable"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    CandidateProfile {
+        UUID id PK
+        UUID user_id FK "CASCADE, unique, indexed"
+        string first_name "nullable"
+        string last_name "nullable"
+        string headline "nullable"
+        text bio "nullable"
+        string phone "nullable"
+        string city "nullable"
+        string state "nullable"
+        string country "nullable"
+        float years_of_experience "nullable"
+        string current_job_title "nullable"
+        string current_company "nullable"
+        string highest_education_level "nullable"
+        string profile_visibility "default PRIVATE"
+        int profile_completion_percent "default 0"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    Skill {
+        UUID id PK
+        string name "required"
+        string normalized_name UK "unique, indexed"
+        string category "nullable, indexed"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    CandidateSkill {
+        UUID id PK
+        UUID profile_id FK "CASCADE, indexed"
+        UUID skill_id FK "CASCADE, indexed"
+        string proficiency "BEGINNER, INTERMEDIATE, ADVANCED, EXPERT"
+        float years_experience "nullable"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    Experience {
+        UUID id PK
+        UUID profile_id FK "CASCADE, indexed"
+        string company_name "required"
+        string job_title "required"
+        text description "nullable"
+        string location "nullable"
+        string employment_type "nullable"
+        date start_date "required"
+        date end_date "nullable"
+        boolean is_current "default false"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    Education {
+        UUID id PK
+        UUID profile_id FK "CASCADE, indexed"
+        string institution_name "required"
+        string degree "nullable"
+        string field_of_study "nullable"
+        string location "nullable"
+        date start_date "nullable"
+        date end_date "nullable"
+        string grade "nullable"
+        text description "nullable"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    CandidatePreferences {
+        UUID id PK
+        UUID profile_id FK "CASCADE, unique, indexed"
+        json desired_titles "required"
+        json preferred_locations "required"
+        json workplace_types "required"
+        json employment_types "required"
+        int minimum_salary "nullable"
+        int maximum_salary "nullable"
+        string salary_currency "default USD"
+        int minimum_experience_years "nullable"
+        int maximum_experience_years "nullable"
+        boolean willing_to_relocate "default false"
+        string remote_preference "nullable"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
+
+    Resume {
+        UUID id PK
+        UUID profile_id FK "CASCADE, indexed"
+        string filename "required"
+        string content_type "required"
+        string storage_key "required"
+        int file_size "required"
+        timestamptz uploaded_at "UTC"
+        boolean is_active "default true"
+        timestamptz created_at "UTC"
+        timestamptz updated_at "UTC"
+    }
 ```
 
 ### Constraints & Indexes
@@ -128,6 +248,16 @@ erDiagram
 - **Duplicate Relationship Constraints**:
   - `ck_job_duplicates_no_self_duplicate` ensures `canonical_job_id != duplicate_job_id`.
   - `uq_job_duplicates_duplicate_job_id` enforces 1:1 duplicate-to-canonical mapping, guaranteeing a single canonical parent and preventing multiple parents or duplicate edge entries.
+- **User & Candidate Constraints**:
+  - `uq_users_email`: Enforces unique email per user.
+  - `uq_candidate_profiles_user_id`: Enforces strictly one candidate profile per user (1:1).
+  - `uq_skills_normalized_name`: Enforces unique canonical skills by normalized lowercase name.
+  - `uq_candidate_skills_profile_skill`: Enforces composite uniqueness of `(profile_id, skill_id)`.
+  - `uq_candidate_preferences_profile_id`: Enforces strictly one preferences record per profile.
+  - `ck_experiences_valid_date_range`: Enforces `end_date IS NULL OR end_date >= start_date`.
+  - `ck_educations_valid_date_range`: Enforces `start_date IS NULL OR end_date IS NULL OR end_date >= start_date`.
+  - `ck_preferences_salary_range`: Enforces `minimum_salary IS NULL OR maximum_salary IS NULL OR maximum_salary >= minimum_salary`.
+  - `ck_preferences_experience_range`: Enforces `minimum_experience_years IS NULL OR maximum_experience_years IS NULL OR maximum_experience_years >= minimum_experience_years`.
 - **Composite Index**: `ix_jobs_company_active` optimizes frequent queries filtering active jobs for a company.
 - **Deduplication Candidate Index**: `ix_jobs_dedup_candidates` on `(company_id, is_active, first_seen_at)` prevents $O(N^2)$ candidate queries during ingestion.
 

@@ -132,8 +132,8 @@ The end-to-end platform workflow spans from career portal discovery to user aler
                                |
                                v
        +-----------------------------------------------+
-       |             AI Intelligence                   |
-       |       (Phase 7: Embeddings & Extraction)      |
+       |      User Profiles & Authentication           |
+       |    (Phase 5: Candidate Experience - ACTIVE)   |
        +-----------------------------------------------+
                                |
                                v

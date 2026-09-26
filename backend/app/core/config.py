@@ -60,6 +60,12 @@ class Settings(BaseSettings):
     DEDUP_MAX_CANDIDATES: int = 100
     DEDUP_LOOKBACK_DAYS: int = 90
 
+    # Authentication & User Security Configuration (Phase 5)
+    AUTH_ENABLED: bool = True
+    JWT_SECRET: str = "dev-insecure-jwt-secret-key-change-in-production-min32chars"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     @field_validator("DEDUP_HIGH_THRESHOLD")
     @classmethod
     def validate_high_threshold(cls, v: float) -> float:
@@ -121,6 +127,20 @@ class Settings(BaseSettings):
     def validate_source_timeout(cls, v: float) -> float:
         if v <= 0:
             raise ValueError("MONITORING_SOURCE_TIMEOUT_SECONDS must be greater than 0")
+        return v
+
+    @field_validator("ACCESS_TOKEN_EXPIRE_MINUTES")
+    @classmethod
+    def validate_access_token_expire(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES must be greater than 0")
+        return v
+
+    @field_validator("JWT_SECRET")
+    @classmethod
+    def validate_jwt_secret(cls, v: str) -> str:
+        if not v or len(v.strip()) < 8:
+            raise ValueError("JWT_SECRET must be at least 8 characters long")
         return v
 
     @field_validator("CORS_ORIGINS", mode="before")

@@ -94,3 +94,28 @@ def test_dedup_settings_validation():
         Settings(DEDUP_LOOKBACK_DAYS=0)
 
 
+def test_auth_settings_defaults():
+    """Verify default authentication and JWT configuration values."""
+    settings = get_settings()
+
+    assert settings.AUTH_ENABLED is True
+    assert settings.JWT_ALGORITHM == "HS256"
+    assert settings.ACCESS_TOKEN_EXPIRE_MINUTES == 60
+    assert len(settings.JWT_SECRET) >= 32
+
+
+def test_auth_settings_validation():
+    """Verify that invalid auth parameters raise validation errors."""
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        Settings(ACCESS_TOKEN_EXPIRE_MINUTES=0)
+
+    with pytest.raises(ValidationError):
+        Settings(ACCESS_TOKEN_EXPIRE_MINUTES=-10)
+
+    with pytest.raises(ValidationError):
+        Settings(JWT_SECRET="short")
+
+

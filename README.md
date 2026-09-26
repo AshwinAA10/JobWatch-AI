@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 4 — Deduplication & Job Identity
-Status: Cross-Source Deduplication, Canonical Linking & Identity Engine Verified
+Current Phase: Phase 5 — User Profiles & Candidate Experience
+Status: Candidate Profiles, Skills, Experience, Education, Preferences & Auth Foundation Verified
 ```
 
-Phase 4 introduces a deterministic, explainable cross-source job deduplication and identity engine. It evaluates candidate postings across providers within company boundaries, enforces strict false-positive prevention and hard contradictions, resolves canonical roots, and creates directed `JobDuplicate` relationships without deleting any source records.
+Phase 5 introduces the candidate and user domain. It provides secure Argon2id password authentication, signed JWT sessions, comprehensive candidate profiles, normalized skills, work experience, academic history, structured job search preferences, and deterministic profile completeness scoring.
 
 ---
 
@@ -34,7 +34,7 @@ Phase 4 introduces a deterministic, explainable cross-source job deduplication a
 - [x] **Phase 2** — Job Connectors *(Completed)*
 - [x] **Phase 3** — Monitoring Engine *(Completed)*
 - [x] **Phase 4** — Deduplication *(Completed)*
-- [ ] **Phase 5** — User Profiles
+- [x] **Phase 5** — User Profiles *(Completed)*
 - [ ] **Phase 6** — Matching Engine
 - [ ] **Phase 7** — AI Intelligence
 - [ ] **Phase 8** — Notifications

@@ -14,6 +14,21 @@ from app.models.monitoring_run import (
     MonitoringTriggerType,
 )
 
+from app.models.candidate_preferences import CandidatePreferences
+from app.models.candidate_profile import CandidateProfile
+from app.models.candidate_skill import CandidateSkill
+from app.models.education import Education
+from app.models.enums import (
+    EmploymentType,
+    ProficiencyLevel,
+    ProfileVisibility,
+    WorkplaceType,
+)
+from app.models.experience import Experience
+from app.models.resume import Resume
+from app.models.skill import Skill
+from app.models.user import User
+
 __all__ = [
     "Base",
     "GUID",
@@ -26,4 +41,16 @@ __all__ = [
     "MonitoringRun",
     "MonitoringRunStatus",
     "MonitoringTriggerType",
+    "User",
+    "CandidateProfile",
+    "Skill",
+    "CandidateSkill",
+    "Experience",
+    "Education",
+    "CandidatePreferences",
+    "Resume",
+    "ProficiencyLevel",
+    "WorkplaceType",
+    "EmploymentType",
+    "ProfileVisibility",
 ]
