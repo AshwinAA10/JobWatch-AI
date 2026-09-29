@@ -8,6 +8,8 @@ from app.models.job_duplicate import (
     JobDuplicate,
     MatchType,
 )
+from app.models.job_match import JobMatch
+from app.models.job_requirements import JobRequirements
 from app.models.monitoring_run import (
     MonitoringRun,
     MonitoringRunStatus,
@@ -36,6 +38,8 @@ __all__ = [
     "Company",
     "CareerSource",
     "Job",
+    "JobRequirements",
+    "JobMatch",
     "JobDuplicate",
     "MatchType",
     "MonitoringRun",

@@ -41,6 +41,13 @@ from app.schemas.job import (
     JobCreate,
     JobRead,
 )
+from app.schemas.matching import (
+    DimensionResultSchema,
+    JobMatchResponse,
+    JobRequirementsCreate,
+    JobRequirementsResponse,
+    JobRequirementsUpdate,
+)
 from app.schemas.resume import (
     ResumeCreate,
     ResumeResponse,
@@ -89,4 +96,9 @@ __all__ = [
     "ProfileCompletenessResponse",
     "ResumeCreate",
     "ResumeResponse",
+    "JobRequirementsCreate",
+    "JobRequirementsUpdate",
+    "JobRequirementsResponse",
+    "DimensionResultSchema",
+    "JobMatchResponse",
 ]

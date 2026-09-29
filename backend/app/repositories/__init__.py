@@ -7,6 +7,8 @@ from app.repositories.education import EducationRepository
 from app.repositories.experience import ExperienceRepository
 from app.repositories.job import JobRepository
 from app.repositories.job_duplicate import JobDuplicateRepository
+from app.repositories.job_match import JobMatchRepository
+from app.repositories.job_requirements import JobRequirementsRepository
 from app.repositories.monitoring_run import MonitoringRunRepository
 from app.repositories.skill import SkillRepository
 from app.repositories.user import UserRepository
@@ -15,6 +17,8 @@ __all__ = [
     "CompanyRepository",
     "CareerSourceRepository",
     "JobRepository",
+    "JobRequirementsRepository",
+    "JobMatchRepository",
     "JobDuplicateRepository",
     "MonitoringRunRepository",
     "UserRepository",

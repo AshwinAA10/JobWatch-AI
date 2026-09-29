@@ -225,3 +225,36 @@ frontend/src/
 5. **Two-Tier Health Probes**:
    - `GET /health` (`GET /api/v1/health`): Process liveness probe.
    - `GET /api/v1/health/db`: Database connectivity readiness probe running lightweight `SELECT 1`.
+6. **Phase 6 Deterministic Matching**: Pure, database-independent matching engine operating on extracted features across 8 dimensions with dynamic normalization for missing data and full explainability.
+
+---
+
+## 6. Matching Engine Architecture (Phase 6)
+
+```text
+                  CandidateProfile
+                        │
+                        ▼
+                 CandidateFeatures
+                        │
+                        ▼
+                  MatchingEngine  ◄── JobFeatures ◄── Job + JobRequirements
+                        │
+          ┌─────────────┴─────────────┐
+          ▼                           ▼
+    Component Scores             Explanations
+          │                           │
+          └─────────────┬─────────────┘
+                        ▼
+             Normalized Weighted Score
+                        │
+                        ▼
+                   MatchResult
+                        │
+                        ▼
+                JobMatch (Persisted)
+```
+
+- **Pure Engine**: `MatchingEngine` has zero database dependencies, enabling isolated unit testing and high performance batch evaluation.
+- **Dynamic Missing Data Strategy**: Missing job attributes (e.g. undisclosed salary or education) yield `UNKNOWN` or `NOT_APPLICABLE` and are dynamically removed from the denominator rather than penalizing candidate scores.
+- **Deterministic Explanations**: Every reason template traces directly to evaluated dimension outcomes without AI hallucination.

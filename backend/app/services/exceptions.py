@@ -64,3 +64,17 @@ class DuplicateSkillError(ProfileError):
 class UnauthorizedAccessError(DomainError):
     """Raised when attempting an unauthorized modification to a resource."""
     pass
+
+
+class MatchingError(DomainError):
+    """Base exception for matching engine errors."""
+    pass
+
+
+class JobNotFoundError(MatchingError):
+    """Raised when a job target cannot be found."""
+
+    def __init__(self, job_id: Optional[UUID] = None) -> None:
+        msg = f"Job not found for ID {job_id}" if job_id else "Job not found"
+        super().__init__(msg)
+        self.job_id = job_id

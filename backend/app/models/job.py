@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from app.models.career_source import CareerSource
     from app.models.company import Company
     from app.models.job_duplicate import JobDuplicate
+    from app.models.job_match import JobMatch
+    from app.models.job_requirements import JobRequirements
 
 
 class Job(Base, TimestampMixin):
@@ -158,6 +160,17 @@ class Job(Base, TimestampMixin):
         "JobDuplicate",
         foreign_keys="JobDuplicate.canonical_job_id",
         back_populates="canonical_job",
+        cascade="all, delete-orphan",
+    )
+    requirements: Mapped[Optional["JobRequirements"]] = relationship(
+        "JobRequirements",
+        back_populates="job",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    matches: Mapped[List["JobMatch"]] = relationship(
+        "JobMatch",
+        back_populates="job",
         cascade="all, delete-orphan",
     )
 

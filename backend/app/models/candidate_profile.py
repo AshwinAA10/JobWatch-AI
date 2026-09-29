@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.candidate_skill import CandidateSkill
     from app.models.education import Education
     from app.models.experience import Experience
+    from app.models.job_match import JobMatch
     from app.models.resume import Resume
     from app.models.user import User
 
@@ -131,6 +132,11 @@ class CandidateProfile(Base, TimestampMixin):
     )
     resumes: Mapped[List["Resume"]] = relationship(
         "Resume",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    job_matches: Mapped[List["JobMatch"]] = relationship(
+        "JobMatch",
         back_populates="profile",
         cascade="all, delete-orphan",
     )

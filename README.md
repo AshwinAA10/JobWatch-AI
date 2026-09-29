@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 5 — User Profiles & Candidate Experience
-Status: Candidate Profiles, Skills, Experience, Education, Preferences & Auth Foundation Verified
+Current Phase: Phase 6 — Matching Engine
+Status: Pure Deterministic Matching Engine, 8-Dimension Evaluation, Dynamic Normalization & Persistence Complete
 ```
 
-Phase 5 introduces the candidate and user domain. It provides secure Argon2id password authentication, signed JWT sessions, comprehensive candidate profiles, normalized skills, work experience, academic history, structured job search preferences, and deterministic profile completeness scoring.
+Phase 6 introduces the deterministic matching engine. It evaluates candidate profiles against normalized jobs and structured job requirements across 8 dimensions (skills, experience, title, location, workplace, employment type, salary, education) with dynamic missing-data normalization, full explainability, and database persistence.
 
 ---
 
@@ -35,7 +35,7 @@ Phase 5 introduces the candidate and user domain. It provides secure Argon2id pa
 - [x] **Phase 3** — Monitoring Engine *(Completed)*
 - [x] **Phase 4** — Deduplication *(Completed)*
 - [x] **Phase 5** — User Profiles *(Completed)*
-- [ ] **Phase 6** — Matching Engine
+- [x] **Phase 6** — Matching Engine *(Completed)*
 - [ ] **Phase 7** — AI Intelligence
 - [ ] **Phase 8** — Notifications
 - [ ] **Phase 9** — Dashboard

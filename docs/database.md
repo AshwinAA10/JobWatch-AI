@@ -272,6 +272,41 @@ All timestamp fields (`created_at`, `updated_at`, `posted_at`, `first_seen_at`, 
 
 ---
 
+### Phase 6: Matching Engine Entities
+
+#### `job_requirements` Table
+Captures structured requirements and qualifications for a job opening.
+- `id` (UUID PK): Primary identifier.
+- `job_id` (UUID FK, UNIQUE, Indexed): References `jobs.id` (CASCADE delete).
+- `required_skills` (JSON): Normalized mandatory skills list.
+- `preferred_skills` (JSON): Normalized secondary/bonus skills list.
+- `minimum_experience_years` (FLOAT, nullable): Minimum required years.
+- `maximum_experience_years` (FLOAT, nullable): Maximum target years.
+- `minimum_salary` (INTEGER, nullable): Lower salary threshold.
+- `maximum_salary` (INTEGER, nullable): Upper salary threshold.
+- `salary_currency` (VARCHAR(3), default 'USD'): ISO currency code.
+- `required_education_level` (VARCHAR(100), nullable): Minimum degree level.
+- `created_at` / `updated_at`: Timezone-aware UTC timestamps.
+
+#### `job_matches` Table
+Persists deterministic matching evaluations between candidates and jobs.
+- `id` (UUID PK): Match record identifier.
+- `user_id` (UUID FK, Indexed): References `users.id` (CASCADE delete).
+- `profile_id` (UUID FK, Indexed): References `candidate_profiles.id` (CASCADE delete).
+- `job_id` (UUID FK, Indexed): References `jobs.id` (CASCADE delete).
+- `score` (FLOAT, Indexed): Normalized 0–100 match score.
+- `scoring_version` (VARCHAR(32), default 'v1'): Scoring algorithm version.
+- `breakdown` (JSON): Structured per-dimension evaluation scores and statuses.
+- `matched_criteria` (JSON): List of verified satisfied criteria.
+- `missing_criteria` (JSON): List of missing or gap criteria.
+- `mismatches` (JSON): List of conflicting attributes.
+- `reasons` (JSON): Deterministic human-readable explanation sentences.
+- `calculated_at` (TIMESTAMPTZ, Indexed): Match execution timestamp.
+- Constraints: `UNIQUE (profile_id, job_id)`.
+- Composite Indexes: `(profile_id, score)`, `(job_id, score)`.
+
+---
+
 ## 4. Connection Pooling Configuration
 
 Connection pooling is configured centrally in `backend/app/core/database.py` via `create_db_engine()`:
