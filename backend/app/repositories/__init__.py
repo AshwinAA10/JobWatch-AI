@@ -17,6 +17,10 @@ from app.repositories.monitoring_run import MonitoringRunRepository
 from app.repositories.skill import SkillRepository
 from app.repositories.user import UserRepository
 
+from app.repositories.notification import NotificationRepository
+from app.repositories.notification_delivery import NotificationDeliveryRepository
+from app.repositories.notification_preference import NotificationPreferenceRepository
+
 __all__ = [
     "CompanyRepository",
     "CareerSourceRepository",
@@ -36,4 +40,7 @@ __all__ = [
     "ExperienceRepository",
     "EducationRepository",
     "CandidatePreferencesRepository",
+    "NotificationPreferenceRepository",
+    "NotificationRepository",
+    "NotificationDeliveryRepository",
 ]

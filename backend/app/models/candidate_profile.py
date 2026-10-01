@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from app.models.education import Education
     from app.models.experience import Experience
     from app.models.job_match import JobMatch
+    from app.models.notification import Notification
+    from app.models.notification_preference import NotificationPreference
     from app.models.resume import Resume
     from app.models.user import User
 
@@ -149,6 +151,17 @@ class CandidateProfile(Base, TimestampMixin):
     )
     ai_explanations: Mapped[List["AIExplanation"]] = relationship(
         "AIExplanation",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    notification_preference: Mapped[Optional["NotificationPreference"]] = relationship(
+        "NotificationPreference",
+        back_populates="profile",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    notifications: Mapped[List["Notification"]] = relationship(
+        "Notification",
         back_populates="profile",
         cascade="all, delete-orphan",
     )

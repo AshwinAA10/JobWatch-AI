@@ -54,6 +54,14 @@ from app.schemas.matching import (
     JobRequirementsResponse,
     JobRequirementsUpdate,
 )
+from app.schemas.notification import (
+    NotificationDeliveryResponse,
+    NotificationListResponse,
+    NotificationPreferenceBase,
+    NotificationPreferenceResponse,
+    NotificationPreferenceUpdate,
+    NotificationResponse,
+)
 from app.schemas.resume import (
     ResumeCreate,
     ResumeResponse,
@@ -111,4 +119,10 @@ __all__ = [
     "JobExtractionResponse",
     "AIExplanationResponse",
     "EnhancedMatchResponse",
+    "NotificationPreferenceBase",
+    "NotificationPreferenceUpdate",
+    "NotificationPreferenceResponse",
+    "NotificationDeliveryResponse",
+    "NotificationResponse",
+    "NotificationListResponse",
 ]

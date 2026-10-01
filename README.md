@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 7 — AI Intelligence, Semantic Matching & LLM Understanding
-Status: Structured Job Extraction, Vector Embeddings (pgvector), Cosine Semantic Similarity, Hybrid Matching & AI Explanations Complete
+Current Phase: Phase 8 — Notification & Alerting System
+Status: Multi-Channel Alerting (Email, Webhook), Idempotent Delivery, Atomic Claim Worker, Bounded Retries, and Flood Protection Complete
 ```
 
-Phase 7 introduces semantic AI capabilities to JobWatch AI while preserving the deterministic matching engine from Phase 6 as the authoritative baseline. It provides schema-constrained LLM job description extraction, content-hash cached pgvector embeddings, cosine similarity scoring, hybrid score synthesis (70/30) with safety guardrails, and score-immutable AI match explanations.
+Phase 8 introduces a provider-independent notification subsystem engineered to deliver timely, relevant alerts to candidates when monitored career portals detect positions matching their preferences. It supports Email (SMTP) and outbound Webhooks with HMAC-SHA256 signatures, SSRF protection, deterministic SHA-256 idempotency keying, atomic claiming, bounded exponential backoff retries, and hourly flood control.
 
 ---
 
@@ -37,7 +37,7 @@ Phase 7 introduces semantic AI capabilities to JobWatch AI while preserving the 
 - [x] **Phase 5** — User Profiles *(Completed)*
 - [x] **Phase 6** — Matching Engine *(Completed)*
 - [x] **Phase 7** — AI Intelligence *(Completed)*
-- [ ] **Phase 8** — Notifications
+- [x] **Phase 8** — Notifications *(Completed)*
 - [ ] **Phase 9** — Dashboard
 - [ ] **Phase 10** — Application Tracking
 - [ ] **Phase 11** — Reliability

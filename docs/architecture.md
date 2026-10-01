@@ -298,3 +298,54 @@ Phase 7 introduces structured LLM extraction, vector embeddings via `pgvector`, 
 - **pgvector Vector Storage**: Native 1536-dimensional float vectors stored directly in PostgreSQL with SHA-256 content-hash cache validation.
 - **Hybrid Score Synthesis**: Formula $0.70 \times \text{Deterministic} + 0.30 \times \text{Semantic}$ with hard constraint safety guardrails that cap the hybrid score if critical dimensions (e.g., workplace type or required skills) are hard mismatches.
 - **Score-Immutable AI Explanations**: Narrative summaries, strengths, gaps, and recommendations are generated from structured facts; the LLM cannot alter the calculated match score.
+
+---
+
+## 7. Notification & Alerting Architecture (Phase 8 Active)
+
+```text
+               Deterministic / Hybrid Match Result
+                                │
+                                ▼
+                       Notification Event
+                                │
+                                ▼
+                     NotificationService
+              (Preference & Threshold Evaluation)
+                                │
+                ┌───────────────┴───────────────┐
+                ▼                               ▼
+       Hourly Rate Limiter             Idempotency Deduplicator
+       (Cap: max_per_hour)            (SHA-256 Canonical Job Key)
+                │                               │
+                └───────────────┬───────────────┘
+                                ▼
+                           Notification
+                     (Record Status: PENDING)
+                                │
+                                ▼
+                       NotificationDelivery
+                   (Channel Attempts: PENDING)
+                                │
+                                ▼
+                    NotificationDeliveryWorker
+                   (Atomic Claim & Backoff Queue)
+                                │
+                 ┌──────────────┴──────────────┐
+                 ▼                             ▼
+            EmailChannel                 WebhookChannel
+                 │                             │
+           EmailProvider                 WebhookProvider
+       (SMTP / Fake Provider)       (HTTP POST / SSRF Guarded)
+                 │                             │
+                 └──────────────┬──────────────┘
+                                ▼
+                     Delivery Status Recorded
+             (SENT / RETRYING / FAILED / CANCELLED)
+```
+
+- **Downstream Consumer**: Notifications are decoupled from ingestion and matching. A failure in notification delivery never impedes job ingestion or matching persistence.
+- **Provider-Independent Abstractions**: `EmailProvider` and `WebhookProvider` isolate protocol details from business alerting rules.
+- **Multi-Tenant Isolation**: Candidate notifications and preferences are strictly isolated via user authentication tokens.
+- **Idempotency & Flood Protection**: SHA-256 idempotency keying bound to canonical job identities prevents duplicate alerts from repeat monitoring runs or portal reposts. Hourly caps protect candidates from alert spam.
+- **Atomic Claims & Stale Recovery**: Safe PostgreSQL concurrency prevents race conditions across multi-worker environments, recovering hung executions automatically.

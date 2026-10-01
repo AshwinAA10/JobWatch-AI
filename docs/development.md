@@ -237,9 +237,11 @@ docker compose down
 | **Start Database Container** | `docker compose up -d postgres` |
 | **Run Migrations** | `.venv\Scripts\python -m alembic -c backend/alembic.ini upgrade head` |
 | **Rollback Migration** | `.venv\Scripts\python -m alembic -c backend/alembic.ini downgrade -1` |
-| **Run Backend Tests** | `.venv\Scripts\python -m pytest backend/tests -v` |
+| **Run All Backend Tests** | `.venv\Scripts\pytest backend/tests -v` |
+| **Run Notification Tests** | `.venv\Scripts\pytest backend/tests/notifications -v` |
 | **Verify Process Health** | `curl http://localhost:8000/health` |
 | **Verify Database Health** | `curl http://localhost:8000/api/v1/health/db` |
+| **Trigger Notification Worker** | `curl -X POST http://localhost:8000/api/v1/notifications/deliveries/process` |
 | **Frontend Type Check & Build** | `npm --prefix frontend run build` |
 | **Start Backend Dev Server** | `uvicorn app.main:app --app-dir backend --port 8000 --reload` |
 | **Start Frontend Dev Server** | `npm --prefix frontend run dev` |

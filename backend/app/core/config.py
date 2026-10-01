@@ -84,6 +84,26 @@ class Settings(BaseSettings):
     HYBRID_DETERMINISTIC_WEIGHT: float = 0.70
     HYBRID_SEMANTIC_WEIGHT: float = 0.30
 
+    # Phase 8: Notification & Alerting Settings
+    NOTIFICATIONS_ENABLED: bool = True
+    EMAIL_NOTIFICATIONS_ENABLED: bool = False
+    EMAIL_PROVIDER: str = "smtp"
+    SMTP_HOST: str = "localhost"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_FROM_EMAIL: str = "alerts@jobwatch.ai"
+    SMTP_FROM_NAME: str = "JobWatch AI"
+    SMTP_USE_TLS: bool = True
+    SMTP_TIMEOUT_SECONDS: float = 10.0
+    EMAIL_REQUIRE_VERIFIED: bool = False
+    WEBHOOK_NOTIFICATIONS_ENABLED: bool = False
+    WEBHOOK_TIMEOUT_SECONDS: float = 10.0
+    NOTIFICATION_MAX_RETRIES: int = 4
+    NOTIFICATION_PROCESSING_TIMEOUT_SECONDS: int = 600
+    NOTIFICATION_HOURLY_RATE_LIMIT: int = 10
+    NOTIFICATION_DEFAULT_MIN_SCORE: float = 75.0
+
     @field_validator("DEDUP_HIGH_THRESHOLD")
     @classmethod
     def validate_high_threshold(cls, v: float) -> float:

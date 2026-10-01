@@ -35,6 +35,10 @@ from app.models.resume import Resume
 from app.models.skill import Skill
 from app.models.user import User
 
+from app.models.notification import Notification
+from app.models.notification_delivery import NotificationDelivery
+from app.models.notification_preference import NotificationPreference
+
 __all__ = [
     "Base",
     "GUID",
@@ -65,4 +69,7 @@ __all__ = [
     "WorkplaceType",
     "EmploymentType",
     "ProfileVisibility",
+    "Notification",
+    "NotificationDelivery",
+    "NotificationPreference",
 ]
