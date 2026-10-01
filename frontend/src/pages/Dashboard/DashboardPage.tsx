@@ -12,9 +12,11 @@ import { useAuth } from '../../context/AuthContext'
 import { fetchJobs, fetchSavedJobs } from '../../services/jobs'
 import { fetchNotifications } from '../../services/notifications'
 import { fetchCandidateProfile } from '../../services/profile'
+import { fetchApplicationStats } from '../../services/applications'
 import { JobCard as JobCardType } from '../../types/job'
 import { NotificationItem } from '../../types/notifications'
 import { CandidateProfile } from '../../types/profile'
+import { ApplicationStats } from '../../types/application'
 import { JobCard } from '../../components/jobs/JobCard'
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton'
 import { ErrorMessage } from '../../components/common/ErrorMessage'
@@ -27,6 +29,7 @@ export const DashboardPage: React.FC = () => {
   const [recommendedJobs, setRecommendedJobs] = useState<JobCardType[]>([])
   const [savedCount, setSavedCount] = useState<number>(0)
   const [recentAlerts, setRecentAlerts] = useState<NotificationItem[]>([])
+  const [appStats, setAppStats] = useState<ApplicationStats | null>(null)
   const [totalJobs, setTotalJobs] = useState<number>(0)
   const [strongMatchCount, setStrongMatchCount] = useState<number>(0)
 
@@ -40,11 +43,12 @@ export const DashboardPage: React.FC = () => {
 
     try {
       // Parallel loading to avoid waterfall
-      const [jobsRes, savedRes, notifRes, profileRes] = await Promise.all([
+      const [jobsRes, savedRes, notifRes, profileRes, statsRes] = await Promise.all([
         fetchJobs({ sort_by: 'best_match', page_size: 6 }, token),
         fetchSavedJobs(token, 1, 1),
         fetchNotifications(token, { limit: 4 }),
         fetchCandidateProfile(token).catch(() => null),
+        fetchApplicationStats(token).catch(() => null),
       ])
 
       setRecommendedJobs(jobsRes.items)
@@ -52,6 +56,7 @@ export const DashboardPage: React.FC = () => {
       setSavedCount(savedRes.total)
       setRecentAlerts(notifRes.items)
       setProfile(profileRes)
+      if (statsRes) setAppStats(statsRes)
 
       // Count strong matches (score >= 80)
       const strong = jobsRes.items.filter((j) => (j.match_score || 0) >= 80).length
@@ -152,6 +157,55 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Application Tracking Quick Section */}
+      {appStats && (
+        <section className="dashboard-applications-summary card mb-lg" aria-label="Application tracking overview">
+          <div className="card-header flex-between flex-wrap gap-xs">
+            <div>
+              <h2 className="section-title text-base flex-center gap-xs">
+                <Briefcase size={18} className="text-primary" />
+                Active Applications Tracking
+              </h2>
+              <p className="section-desc text-xs">
+                Lifecycle overview of jobs you've applied to
+              </p>
+            </div>
+            <Link to="/applications" className="btn btn-secondary btn-xs flex-center gap-xs">
+              View All Applications ({appStats.total})
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+          <div className="card-body">
+            <div className="app-stats-row flex-between flex-wrap gap-sm">
+              <Link to="/applications" className="app-stat-pill">
+                <span className="pill-count">{appStats.total}</span>
+                <span className="pill-title">All</span>
+              </Link>
+              <Link to="/applications?status=APPLIED" className="app-stat-pill pill-applied">
+                <span className="pill-count">{appStats.applied}</span>
+                <span className="pill-title">Applied</span>
+              </Link>
+              <Link to="/applications?status=SCREENING" className="app-stat-pill pill-screening">
+                <span className="pill-count">{appStats.screening}</span>
+                <span className="pill-title">Screening</span>
+              </Link>
+              <Link to="/applications?status=INTERVIEW" className="app-stat-pill pill-interview">
+                <span className="pill-count">{appStats.interview}</span>
+                <span className="pill-title">Interview</span>
+              </Link>
+              <Link to="/applications?status=OFFER" className="app-stat-pill pill-offer">
+                <span className="pill-count">{appStats.offer}</span>
+                <span className="pill-title">Offer</span>
+              </Link>
+              <Link to="/applications?status=REJECTED" className="app-stat-pill pill-rejected">
+                <span className="pill-count">{appStats.rejected}</span>
+                <span className="pill-title">Rejected</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Main Grid: Recommended Jobs & Recent Alerts */}
       <div className="dashboard-split-layout">

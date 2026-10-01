@@ -10,6 +10,7 @@ from app.models.enums import ProfileVisibility
 
 if TYPE_CHECKING:
     from app.models.ai_explanation import AIExplanation
+    from app.models.application import Application
     from app.models.candidate_embedding import CandidateEmbedding
     from app.models.candidate_preferences import CandidatePreferences
     from app.models.candidate_skill import CandidateSkill
@@ -168,6 +169,11 @@ class CandidateProfile(Base, TimestampMixin):
     )
     saved_jobs: Mapped[List["SavedJob"]] = relationship(
         "SavedJob",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    applications: Mapped[List["Application"]] = relationship(
+        "Application",
         back_populates="profile",
         cascade="all, delete-orphan",
     )

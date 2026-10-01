@@ -11,6 +11,8 @@ import { SavedJobsPage } from './pages/SavedJobs/SavedJobsPage'
 import { NotificationsPage } from './pages/Notifications/NotificationsPage'
 import { ProfilePage } from './pages/Profile/ProfilePage'
 import { SettingsPage } from './pages/Settings/SettingsPage'
+import { ApplicationsPage } from './pages/Applications/ApplicationsPage'
+import { ApplicationDetailPage } from './pages/Applications/ApplicationDetailPage'
 
 export function App() {
   return (
@@ -31,6 +33,8 @@ export function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/jobs/:id" element={<JobDetailsPage />} />
+            <Route path="/applications" element={<ApplicationsPage />} />
+            <Route path="/applications/:id" element={<ApplicationDetailPage />} />
             <Route path="/saved" element={<SavedJobsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile" element={<ProfilePage />} />

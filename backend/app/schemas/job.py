@@ -62,6 +62,8 @@ class JobCardResponse(BaseModel):
     match_type: Optional[str] = None
     match_reasons: list[str] = Field(default_factory=list)
     is_saved: bool = False
+    application_id: Optional[UUID] = None
+    application_status: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

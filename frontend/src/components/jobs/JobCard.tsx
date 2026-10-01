@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Layers,
   ArrowRight,
+  CheckCircle2,
 } from 'lucide-react'
 import { JobCard as JobCardType } from '../../types/job'
 import { MatchScoreBadge } from '../matching/MatchScoreBadge'
@@ -147,17 +148,28 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSaveToggle }) => {
 
       <div className="job-card-footer">
         <div className="footer-left">
-          {job.application_url && (
-            <a
-              href={job.application_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary btn-xs"
+          {job.application_id ? (
+            <Link
+              to={`/applications/${job.application_id}`}
+              className="badge badge-primary flex-center gap-xs text-xs py-xs px-sm hover-underline"
               onClick={(e) => e.stopPropagation()}
             >
-              Apply Externally
-              <ExternalLink size={12} className="icon-ml" />
-            </a>
+              <CheckCircle2 size={12} />
+              Applied ({job.application_status || 'Active'})
+            </Link>
+          ) : (
+            job.application_url && (
+              <a
+                href={job.application_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary btn-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Apply Externally
+                <ExternalLink size={12} className="icon-ml" />
+              </a>
+            )
           )}
         </div>
 

@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Radar,
+  ClipboardList,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { fetchNotifications } from '../../services/notifications'
@@ -84,6 +85,14 @@ export const AppLayout: React.FC = () => {
               >
                 <Briefcase size={16} className="nav-icon" />
                 <span>Jobs</span>
+              </NavLink>
+
+              <NavLink
+                to="/applications"
+                className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+              >
+                <ClipboardList size={16} className="nav-icon" />
+                <span>Applications</span>
               </NavLink>
 
               <NavLink
@@ -185,6 +194,15 @@ export const AppLayout: React.FC = () => {
               >
                 <Briefcase size={18} />
                 <span>Discover Jobs</span>
+              </NavLink>
+
+              <NavLink
+                to="/applications"
+                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                onClick={closeMobileMenu}
+              >
+                <ClipboardList size={18} />
+                <span>Applications</span>
               </NavLink>
 
               <NavLink

@@ -39,6 +39,15 @@ from app.models.notification import Notification
 from app.models.notification_delivery import NotificationDelivery
 from app.models.notification_preference import NotificationPreference
 from app.models.saved_job import SavedJob
+from app.models.application import Application
+from app.models.application_history import ApplicationHistory
+from app.models.application_note import ApplicationNote
+from app.models.interview import Interview
+from app.models.enums import (
+    ApplicationStatus,
+    InterviewStatus,
+    InterviewType,
+)
 
 __all__ = [
     "Base",
@@ -74,4 +83,11 @@ __all__ = [
     "NotificationDelivery",
     "NotificationPreference",
     "SavedJob",
+    "Application",
+    "ApplicationHistory",
+    "ApplicationNote",
+    "Interview",
+    "ApplicationStatus",
+    "InterviewType",
+    "InterviewStatus",
 ]

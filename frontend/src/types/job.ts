@@ -22,6 +22,8 @@ export interface JobCard {
   match_type?: string | null
   match_reasons?: string[]
   is_saved: boolean
+  application_id?: string | null
+  application_status?: string | null
 }
 
 export interface AIExplanationData {

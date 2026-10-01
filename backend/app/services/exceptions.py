@@ -78,3 +78,33 @@ class JobNotFoundError(MatchingError):
         msg = f"Job not found for ID {job_id}" if job_id else "Job not found"
         super().__init__(msg)
         self.job_id = job_id
+
+
+class ApplicationError(DomainError):
+    """Base exception for application tracking lifecycle errors."""
+    pass
+
+
+class ApplicationNotFoundError(ApplicationError):
+    """Raised when an application is not found or does not belong to the candidate."""
+
+    def __init__(self, application_id: Optional[UUID] = None) -> None:
+        msg = f"Application not found for ID {application_id}" if application_id else "Application not found"
+        super().__init__(msg)
+        self.application_id = application_id
+
+
+class DuplicateApplicationError(ApplicationError):
+    """Raised when an application for the specified job already exists for the candidate."""
+    pass
+
+
+class InvalidStatusTransitionError(ApplicationError):
+    """Raised when a requested status transition is not permitted."""
+    pass
+
+
+class InterviewNotFoundError(ApplicationError):
+    """Raised when an interview record is not found."""
+    pass
+

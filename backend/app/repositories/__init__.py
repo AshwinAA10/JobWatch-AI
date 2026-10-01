@@ -21,6 +21,10 @@ from app.repositories.notification import NotificationRepository
 from app.repositories.notification_delivery import NotificationDeliveryRepository
 from app.repositories.notification_preference import NotificationPreferenceRepository
 from app.repositories.saved_job import SavedJobRepository
+from app.repositories.application import ApplicationRepository
+from app.repositories.application_history import ApplicationHistoryRepository
+from app.repositories.application_note import ApplicationNoteRepository
+from app.repositories.interview import InterviewRepository
 
 __all__ = [
     "CompanyRepository",
@@ -45,4 +49,8 @@ __all__ = [
     "NotificationRepository",
     "NotificationDeliveryRepository",
     "SavedJobRepository",
+    "ApplicationRepository",
+    "ApplicationHistoryRepository",
+    "ApplicationNoteRepository",
+    "InterviewRepository",
 ]

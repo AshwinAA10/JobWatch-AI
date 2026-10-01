@@ -9,16 +9,21 @@ import {
   ExternalLink,
   Bookmark,
   ArrowLeft,
+  ArrowRight,
   Layers,
   FileText,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { fetchJobDetail, saveJob, unsaveJob } from '../../services/jobs'
+import { createApplication } from '../../services/applications'
 import { JobDetail } from '../../types/job'
 import { MatchScoreBadge } from '../../components/matching/MatchScoreBadge'
 import { MatchBreakdownCard } from '../../components/matching/MatchBreakdownCard'
 import { MatchExplanationCard } from '../../components/matching/MatchExplanationCard'
 import { AIInsightsCard } from '../../components/matching/AIInsightsCard'
+import { ApplicationStatusBadge } from '../../components/applications/ApplicationStatusBadge'
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton'
 import { ErrorMessage } from '../../components/common/ErrorMessage'
 
@@ -34,6 +39,11 @@ export const JobDetailsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  const [applicationId, setApplicationId] = useState<string | null>(null)
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null)
+  const [isApplying, setIsApplying] = useState<boolean>(false)
+  const [applyError, setApplyError] = useState<string | null>(null)
+
   const loadJob = async () => {
     if (!id) return
     setIsLoading(true)
@@ -43,10 +53,34 @@ export const JobDetailsPage: React.FC = () => {
       const data = await fetchJobDetail(id, token)
       setJob(data)
       setIsSaved(data.is_saved)
+      setApplicationId(data.application_id || null)
+      setApplicationStatus(data.application_status || null)
     } catch (err: any) {
       setError(err.message || 'Failed to load job details.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleMarkAsApplied = async () => {
+    if (!isAuthenticated || !token || !job) {
+      return
+    }
+
+    setIsApplying(true)
+    setApplyError(null)
+
+    try {
+      const app = await createApplication(token, {
+        job_id: job.id,
+        external_application_url: job.application_url || undefined,
+      })
+      setApplicationId(app.id)
+      setApplicationStatus(app.status)
+    } catch (err: any) {
+      setApplyError(err.message || 'Failed to mark as applied.')
+    } finally {
+      setIsApplying(false)
     }
   }
 
@@ -199,16 +233,47 @@ export const JobDetailsPage: React.FC = () => {
             </div>
 
             <div className="action-buttons-group">
-              {job.application_url && (
-                <a
-                  href={job.application_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary btn-apply"
-                >
-                  Apply Externally
-                  <ExternalLink size={15} className="icon-ml" />
-                </a>
+              {applicationId ? (
+                <div className="application-tracking-status-box flex-center flex-wrap gap-xs">
+                  <ApplicationStatusBadge status={applicationStatus || 'APPLIED'} size="md" />
+                  <Link
+                    to={`/applications/${applicationId}`}
+                    className="btn btn-primary btn-sm flex-center gap-xs"
+                  >
+                    View Application <ArrowRight size={14} />
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {job.application_url && (
+                    <a
+                      href={job.application_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary btn-apply"
+                    >
+                      Apply Externally
+                      <ExternalLink size={15} className="icon-ml" />
+                    </a>
+                  )}
+
+                  {isAuthenticated && (
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm flex-center gap-xs"
+                      onClick={handleMarkAsApplied}
+                      disabled={isApplying}
+                      title="Track this job in your applications"
+                    >
+                      {isApplying ? (
+                        <Loader2 size={14} className="spinner" />
+                      ) : (
+                        <CheckCircle2 size={14} className="text-primary" />
+                      )}
+                      Mark as Applied
+                    </button>
+                  )}
+                </>
               )}
 
               <button
@@ -223,7 +288,8 @@ export const JobDetailsPage: React.FC = () => {
               </button>
             </div>
 
-            {saveError && <span className="text-warning text-xs mt-1">{saveError}</span>}
+            {applyError && <span className="text-danger text-xs mt-1 block">{applyError}</span>}
+            {saveError && <span className="text-warning text-xs mt-1 block">{saveError}</span>}
           </div>
         </div>
       </header>

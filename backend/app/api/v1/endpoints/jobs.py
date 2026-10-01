@@ -13,6 +13,7 @@ from app.models.job import Job
 from app.models.user import User
 from app.repositories.ai_explanation import AIExplanationRepository
 from app.repositories.ai_job_extraction import AIJobExtractionRepository
+from app.repositories.application import ApplicationRepository
 from app.repositories.job import JobRepository
 from app.repositories.job_duplicate import JobDuplicateRepository
 from app.repositories.job_match import JobMatchRepository
@@ -32,6 +33,7 @@ def _build_job_card(
     job: Job,
     saved_ids: set,
     matches_by_job_id: Dict[UUID, any],
+    applications_by_job_id: Optional[Dict[UUID, any]] = None,
 ) -> JobCardResponse:
     """Helper to convert Job ORM entity into JobCardResponse with match intelligence."""
     company_name = job.company.name if job.company else "Unknown Company"
@@ -39,6 +41,7 @@ def _build_job_card(
     source_name = job.career_source.name if job.career_source else None
 
     match = matches_by_job_id.get(job.id)
+    app_record = applications_by_job_id.get(job.id) if applications_by_job_id else None
 
     return JobCardResponse(
         id=job.id,
@@ -60,6 +63,8 @@ def _build_job_card(
         match_type="hybrid" if (match and getattr(match, "scoring_version", "").startswith("hybrid")) else ("deterministic" if match else None),
         match_reasons=match.reasons if (match and match.reasons) else [],
         is_saved=job.id in saved_ids,
+        application_id=app_record.id if app_record else None,
+        application_status=(app_record.status.value if hasattr(app_record.status, "value") else str(app_record.status)) if app_record else None,
     )
 
 
@@ -86,11 +91,13 @@ def list_jobs(
     job_repo = JobRepository(db)
     saved_repo = SavedJobRepository(db)
     match_repo = JobMatchRepository(db)
+    app_repo = ApplicationRepository(db)
 
     # Resolve candidate profile if authenticated
     profile: Optional[CandidateProfile] = None
     saved_ids = set()
     matches_by_job_id: Dict[UUID, any] = {}
+    apps_by_job_id: Dict[UUID, any] = {}
 
     if current_user:
         profile_service = ProfileService(db)
@@ -99,6 +106,9 @@ def list_jobs(
 
         user_matches = match_repo.list_for_profile(profile.id, limit=500)
         matches_by_job_id = {m.job_id: m for m in user_matches}
+
+        user_apps, _ = app_repo.list_for_profile(profile.id, limit=500)
+        apps_by_job_id = {a.job_id: a for a in user_apps if a.job_id}
 
     # Fetch jobs from repository
     skip = (page - 1) * page_size
@@ -117,7 +127,7 @@ def list_jobs(
     )
 
     # Build card models
-    card_items = [_build_job_card(j, saved_ids, matches_by_job_id) for j in jobs]
+    card_items = [_build_job_card(j, saved_ids, matches_by_job_id, apps_by_job_id) for j in jobs]
 
     # Filter by minimum match score if requested
     if min_score is not None:
@@ -164,12 +174,16 @@ def list_saved_jobs(
     jobs, total = saved_repo.list_saved_for_profile(profile.id, skip=skip, limit=page_size)
     saved_ids = saved_repo.get_saved_job_ids(profile.id)
 
+    app_repo = ApplicationRepository(db)
+    user_apps, _ = app_repo.list_for_profile(profile.id, limit=500)
+    apps_by_job_id = {a.job_id: a for a in user_apps if a.job_id}
+
     user_matches = match_repo.list_for_profile(profile.id, limit=500)
     matches_by_job_id = {m.job_id: m for m in user_matches}
 
     items = []
     for job in jobs:
-        card = _build_job_card(job, saved_ids, matches_by_job_id)
+        card = _build_job_card(job, saved_ids, matches_by_job_id, apps_by_job_id)
         saved_record = saved_repo.get_by_profile_and_job(profile.id, job.id)
         items.append(
             SavedJobResponse(
@@ -219,11 +233,13 @@ def get_job_detail(
     explanation_repo = AIExplanationRepository(db)
     extraction_repo = AIJobExtractionRepository(db)
     duplicate_repo = JobDuplicateRepository(db)
+    app_repo = ApplicationRepository(db)
 
     is_saved = False
     match = None
     ai_expl = None
     structured_reqs = None
+    application = None
 
     if current_user:
         profile_service = ProfileService(db)
@@ -231,6 +247,7 @@ def get_job_detail(
         is_saved = saved_repo.is_saved(profile.id, job.id)
         match = match_repo.get_by_profile_and_job(profile.id, job.id)
         ai_expl = explanation_repo.get_by_profile_and_job(profile.id, job.id)
+        application = app_repo.get_by_profile_and_job(profile.id, job.id)
 
     # Check cached extraction
     cached_extraction = extraction_repo.get_by_job_id(job.id)
@@ -285,6 +302,8 @@ def get_job_detail(
         structured_requirements=structured_reqs,
         duplicate_count=duplicate_count,
         is_saved=is_saved,
+        application_id=application.id if application else None,
+        application_status=(application.status.value if hasattr(application.status, "value") else str(application.status)) if application else None,
     )
 
 
