@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 9 — Candidate Dashboard & Job Discovery UI
-Status: Candidate Dashboard, Job Discovery, Match Visualizations, AI Insights, Notifications, and Candidate Settings Complete
+Current Phase: Phase 10 — Application Tracking & Application Lifecycle
+Status: Complete — Candidate-owned application tracking, controlled lifecycle transitions, immutable audit timeline, private candidate notes, scheduled interview management, dashboard metrics, and job discovery integration.
 ```
 
-Phase 9 establishes the candidate-facing web application. Built with React 18, Vite, and modern responsive design tokens, it connects directly to backend intelligence to deliver interactive job discovery, deterministic and AI match visualizations, breakdown dimensions, sanitized job descriptions, persistent bookmarking, and multi-channel alerting preferences.
+Phase 10 allows authenticated candidates to track jobs they have applied to and manage their complete application lifecycle from `APPLIED` through `SCREENING`, `INTERVIEW`, `OFFER`, and `ACCEPTED` (or `REJECTED` / `WITHDRAWN`). The candidate retains full autonomy over external submissions (strictly no bot automation), while application history is securely decoupled from company career portal lifecycles through application-time job metadata snapshots.
 
 ---
 
@@ -39,7 +39,7 @@ Phase 9 establishes the candidate-facing web application. Built with React 18, V
 - [x] **Phase 7** — AI Intelligence *(Completed)*
 - [x] **Phase 8** — Notifications *(Completed)*
 - [x] **Phase 9** — Candidate Dashboard & Job Discovery UI *(Completed)*
-- [ ] **Phase 10** — Application Tracking
+- [x] **Phase 10** — Application Tracking & Application Lifecycle *(Completed)*
 - [ ] **Phase 11** — Reliability
 - [ ] **Phase 12** — Production Deployment
 - [ ] **Phase 13** — Advanced AI
@@ -54,48 +54,60 @@ flowchart TD
         CP["Target Career Portals<br/>(Greenhouse, Lever, Workday)"]
     end
 
-    subgraph DataIngestion["Ingestion & Monitoring (Future: Phase 2-4)"]
+    subgraph DataIngestion["Ingestion, Monitoring & Deduplication"]
         JC["Job Connectors (Phase 2)"]
         ME["Monitoring Engine (Phase 3)"]
         DD["Deduplication Engine (Phase 4)"]
     end
 
-    subgraph Persistence["Storage & Persistence Layer (Phase 1 Active)"]
-        DB[(PostgreSQL Database)]
+    subgraph Persistence["Storage & Persistence Layer"]
+        DB[(PostgreSQL + pgvector)]
         ALEMBIC["Alembic Migrations"]
-        REPO["Repositories (Company, CareerSource, Job)"]
+        REPO["Repositories (Jobs, Profiles, Matches, Notifications, Applications)"]
         ORM["SQLAlchemy 2.x Declarative Models"]
         DB --- ALEMBIC
         REPO --> ORM
         ORM --> DB
     end
 
-    subgraph Intelligence["Opportunity Intelligence (Future: Phase 6-7)"]
-        AI["AI / LLM Analysis (Phase 7)"]
-        MATCH["Matching Engine (Phase 6)"]
+    subgraph Intelligence["Opportunity Intelligence"]
+        AI["AI / Semantic Extraction & Embeddings (Phase 7)"]
+        MATCH["Deterministic & Hybrid Matching (Phase 6 & 7)"]
     end
 
-    subgraph Delivery["Delivery & User Experience (Future: Phase 8-9)"]
+    subgraph Tracking["Application Tracking & Lifecycle (Phase 10)"]
+        APP["Application Service & Repository"]
+        HIST["Audit Timeline (application_history)"]
+        NOTES["Private Notes (application_notes)"]
+        INTS["Interview Rounds (interviews)"]
+    end
+
+    subgraph Delivery["Delivery & User Experience"]
         NOTIF["Notification Engine (Phase 8)<br/>(Email, SMS, Webhooks)"]
-        UI["React Web Dashboard (Phase 9)"]
+        UI["React Web Application (Phase 9 & 10)<br/>(Dashboard, Jobs, Details, Applications, Settings)"]
     end
 
-    subgraph CoreBackend["Backend API & Core Foundation"]
-        API["FastAPI Core App & /health & /health/db"]
-        CONF["Pydantic Settings & Centralized Database Config"]
-        FE_SHELL["React + Vite + TypeScript Shell"]
+    subgraph CoreBackend["Backend API & Foundation"]
+        API["FastAPI App (/api/v1 Router)"]
+        AUTH["JWT Authentication & Candidate Isolation (Phase 5)"]
+        CONF["Pydantic Settings"]
     end
 
-    CP -.-> JC
-    JC -.-> ME
-    ME -.-> DD
-    DD -.-> REPO
-    DB -.-> AI
-    AI -.-> MATCH
-    MATCH -.-> NOTIF
-    MATCH -.-> UI
+    CP --> JC
+    JC --> ME
+    ME --> DD
+    DD --> REPO
+    DB --> AI
+    AI --> MATCH
+    MATCH --> NOTIF
+    MATCH --> UI
     UI --> API
-    API --> REPO
+    API --> AUTH
+    AUTH --> APP
+    APP --> HIST
+    APP --> NOTES
+    APP --> INTS
+    APP --> REPO
     API --> CONF
 ```
 
@@ -103,21 +115,22 @@ flowchart TD
 
 ## 5. Technology Stack
 
-### Current (Phase 0 & Phase 1 Active)
-- **Backend**: Python 3.13, FastAPI, Uvicorn, Pydantic v2, Pydantic Settings
-- **Database & ORM**: PostgreSQL, SQLAlchemy 2.x (`DeclarativeBase`), psycopg 3 (`psycopg[binary]`)
-- **Database Migrations**: Alembic
-- **Frontend**: React 18, TypeScript, Vite
-- **Testing**: PyTest, HTTPX (TestClient)
+### Active Core Technologies (Phases 0–10)
+- **Backend Framework**: Python 3.13, FastAPI, Uvicorn, Pydantic v2, Pydantic Settings
+- **Database & Storage**: PostgreSQL 16 (`pgvector/pgvector:pg16`), SQLAlchemy 2.x (`DeclarativeBase`), psycopg 3 (`psycopg[binary]`)
+- **Database Migrations**: Alembic (9 migration revisions through `0009_application_tracking`)
+- **Connectors & Ingestion**: Greenhouse, Lever, Workday normalized ingestion pipelines
+- **Monitoring & Workers**: Background monitoring daemon, health probes, retry policies
+- **Deduplication Engine**: Canonical job consolidation, composite fingerprinting, title normalization
+- **Candidate Domain & Auth**: JWT authentication (bcrypt), candidate profiles, skill matrices, preferences
+- **Matching Intelligence**: Deterministic rule-based matching engine + AI hybrid semantic embeddings (`text-embedding-3-small`, OpenAI LLM explanations)
+- **Notifications & Alerting**: Multi-channel dispatch (Email templates, SSRF-protected Webhooks), candidate alerting preferences, deduplication and quiet-hours rate limiting
+- **Application Tracking & Lifecycle**: Controlled lifecycle statuses (`APPLIED` to `ACCEPTED`), transition validation, immutable audit timeline, candidate private notes, scheduled interview management
+- **Frontend Architecture**: React 18, TypeScript, Vite, CSS design system tokens (dark mode, glassmorphism, micro-animations), Lucide React icons, DOMPurify
+- **Testing & Quality**: 
+  - Backend: PyTest (274 tests passing, 100% test pass rate)
+  - Frontend: Vitest + React Testing Library (31 tests passing, 100% test pass rate)
 - **Containerization**: Docker, Docker Compose (PostgreSQL 16 Alpine + FastAPI)
-- **Configuration**: Pydantic Settings (`.env.example` -> `.env`)
-
-### Future (Planned Roadmap Phases)
-- **Job Connectors & Scraping**: Playwright, Scrapy, BeautifulSoup, HTTP clients *(Phase 2)*
-- **Queue / Scheduling**: Redis, Celery / ARQ *(Phase 3)*
-- **Deduplication**: SimHash, MinHash, Vector Deduplication *(Phase 4)*
-- **AI & NLP**: OpenAI / Anthropic APIs, LangChain / LlamaIndex, pgvector *(Phase 7, 13)*
-- **Notifications**: SendGrid (Email), Twilio (SMS/WhatsApp), Webhooks *(Phase 8)*
 
 ---
 
@@ -126,38 +139,40 @@ flowchart TD
 ```text
 jobwatch-ai/
 ├── backend/
-│   ├── alembic/            # Database schema migration scripts & env.py
+│   ├── alembic/            # Database schema migration scripts & env.py (Revisions 0001-0009)
 │   ├── alembic.ini         # Alembic configuration
 │   ├── app/
-│   │   ├── api/            # HTTP routes & controllers (v1 router)
+│   │   ├── api/            # HTTP routes & controllers (Auth, Jobs, Applications, Profile, etc.)
 │   │   ├── core/           # Config, database engine, pooling & sessionmaker
-│   │   ├── models/         # SQLAlchemy 2.x ORM models (Company, CareerSource, Job)
+│   │   ├── models/         # SQLAlchemy 2.x models (Job, Application, Profile, Match, etc.)
 │   │   ├── schemas/        # Pydantic v2 request/response validation schemas
-│   │   ├── services/       # Domain business logic (Phase 2+)
-│   │   ├── repositories/   # Data access repositories (Company, CareerSource, Job)
-│   │   ├── workers/        # Background execution (Phase 3)
-│   │   ├── connectors/     # Career portal integrations (Phase 2)
-│   │   ├── ai/             # LLM orchestration (Phase 7)
-│   │   ├── notifications/  # Notification providers (Phase 8)
+│   │   ├── services/       # Domain business logic (ApplicationService, ProfileService, etc.)
+│   │   ├── repositories/   # Clean data access layer (Application, Job, Match, Note, Interview)
+│   │   ├── workers/        # Background execution & monitoring workers
+│   │   ├── connectors/     # Greenhouse, Lever, Workday integrations
+│   │   ├── ai/             # AI extraction, embeddings & LLM explanations
+│   │   ├── notifications/  # Notification providers, channels & dispatchers
 │   │   └── main.py         # FastAPI application entrypoint
-│   ├── tests/              # Pytest test suite (20 passing tests)
-│   ├── requirements.txt    # Phase 0 & Phase 1 Python dependencies
+│   ├── tests/              # Comprehensive Pytest test suite (274 tests)
+│   ├── requirements.txt    # Python dependencies
 │   └── Dockerfile          # Backend container specification
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Top-level page views
-│   │   ├── layouts/        # Application layouts
+│   │   ├── components/     # UI components (applications, jobs, matching, common, layout)
+│   │   ├── context/        # React Context providers (AuthContext)
+│   │   ├── pages/          # Top-level page views (Dashboard, Jobs, Applications, Profile, etc.)
+│   │   ├── layouts/        # Application layouts (AppLayout, ProtectedRoute)
 │   │   ├── hooks/          # Reusable custom hooks
-│   │   ├── services/       # API communication client (with health & db probe)
-│   │   ├── stores/         # State management stores
-│   │   ├── types/          # TypeScript interfaces
-│   │   ├── App.tsx         # Root component shell
+│   │   ├── services/       # API clients (applications, jobs, notifications, auth, profile)
+│   │   ├── test/           # Vitest unit & integration test suites (31 tests)
+│   │   ├── types/          # TypeScript interfaces (application, job, profile, notif)
+│   │   ├── index.css       # Comprehensive CSS design tokens and component styling
+│   │   ├── App.tsx         # Root component with routing table
 │   │   └── main.tsx        # React entrypoint
 │   └── package.json
 │
-├── docs/                   # Architectural, database & development docs
+├── docs/                   # Architectural, database & development specifications
 ├── scripts/                # Automated cross-platform setup scripts
 ├── docker-compose.yml      # Local container orchestration (PostgreSQL + FastAPI)
 ├── .env.example            # Environment variables template
@@ -212,8 +227,9 @@ curl http://localhost:8000/api/v1/health/db
 ```bash
 cd frontend
 npm install
-npm run build
-npm run dev
+npm test            # Run Vitest unit & integration test suite (31 tests)
+npm run build       # Verify TypeScript compilation & Vite bundle
+npm run dev         # Start local development server
 ```
 
 Visit the frontend at: `http://localhost:5173`
