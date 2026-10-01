@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: jobwatch-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-jobwatch}
@@ -34,6 +34,13 @@ services:
       - API_V1_STR=/api/v1
       - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
       - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - OPENAI_EMBEDDING_MODEL=${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      - AI_EXTRACTION_ENABLED=${AI_EXTRACTION_ENABLED:-true}
+      - AI_EMBEDDING_ENABLED=${AI_EMBEDDING_ENABLED:-true}
+      - AI_HYBRID_MATCHING_ENABLED=${AI_HYBRID_MATCHING_ENABLED:-true}
+      - AI_EXPLANATIONS_ENABLED=${AI_EXPLANATIONS_ENABLED:-true}
     volumes:
       - ./backend:/app
     depends_on:

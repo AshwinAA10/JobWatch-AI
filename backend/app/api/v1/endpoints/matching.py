@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
+from app.schemas.ai import EnhancedMatchResponse
 from app.schemas.matching import (
     JobMatchResponse,
     JobRequirementsCreate,
@@ -159,6 +160,40 @@ def get_job_requirements(
                 detail="No structured requirements found for this job.",
             )
         return JobRequirementsResponse.model_validate(req)
+    except JobNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found.",
+        )
+
+
+@router.post(
+    "/jobs/{job_id}/enhanced",
+    response_model=EnhancedMatchResponse,
+    summary="AI-Enhanced Hybrid Match",
+    description="Evaluates hybrid deterministic and semantic matching with narrative AI explanations.",
+)
+def evaluate_enhanced_match(
+    job_id: UUID,
+    force_refresh: bool = Query(False, description="Force re-generation of embeddings and AI extraction"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> EnhancedMatchResponse:
+    """Trigger AI-enhanced hybrid match for authenticated candidate."""
+    from app.ai.service import AIIntelligenceService
+
+    ai_service = AIIntelligenceService(db)
+    try:
+        return ai_service.evaluate_enhanced_match(
+            user_id=current_user.id,
+            job_id=job_id,
+            force_refresh=force_refresh,
+        )
+    except ProfileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Candidate profile not found. Please complete profile setup first.",
+        )
     except JobNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

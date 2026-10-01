@@ -376,3 +376,55 @@ Sample successful response (`200 OK`):
 ```
 
 If the database is unreachable, the endpoint returns `503 Service Unavailable` with clean diagnostic details without exposing database credentials or stack traces.
+
+---
+
+## 8. Phase 7 AI Intelligence & pgvector Schema
+
+Migration `0006_ai_intelligence.py` adds:
+1. `CREATE EXTENSION IF NOT EXISTS vector;` (Enables pgvector support)
+2. `ai_job_extractions`:
+   - `id`: UUID (Primary Key)
+   - `job_id`: UUID (FK -> jobs.id, ON DELETE CASCADE)
+   - `input_hash`: VARCHAR(64) (SHA-256 content hash of title + description + prompt version)
+   - `model`: VARCHAR(64) (e.g. gpt-4o-mini)
+   - `prompt_version`: VARCHAR(32) (default 'v1')
+   - `extraction_version`: VARCHAR(32) (default 'v1')
+   - `structured_requirements`: JSONB (schema-validated AIJobRequirements)
+   - `is_success`: BOOLEAN (default true)
+   - `error_message`: TEXT (nullable)
+   - `tokens_used`: INTEGER (nullable)
+   - `duration_ms`: FLOAT (latency tracking)
+   - `created_at`, `updated_at`: TIMESTAMPTZ (UTC)
+   - Unique Constraint: `(job_id, input_hash, model, prompt_version)`
+3. `job_embeddings`:
+   - `id`: UUID (Primary Key)
+   - `job_id`: UUID (FK -> jobs.id, ON DELETE CASCADE)
+   - `content_hash`: VARCHAR(64) (SHA-256 of deterministic text representation)
+   - `model`: VARCHAR(64) (e.g. text-embedding-3-small)
+   - `dimensions`: INTEGER (default 1536)
+   - `embedding_version`: VARCHAR(32) (default 'v1')
+   - `embedding`: Vector(1536)
+   - Unique Constraint: `(job_id, content_hash, model, embedding_version)`
+4. `candidate_embeddings`:
+   - `id`: UUID (Primary Key)
+   - `profile_id`: UUID (FK -> candidate_profiles.id, ON DELETE CASCADE)
+   - `content_hash`: VARCHAR(64) (SHA-256 of PII-minimized text representation)
+   - `model`: VARCHAR(64)
+   - `dimensions`: INTEGER (default 1536)
+   - `embedding_version`: VARCHAR(32) (default 'v1')
+   - `embedding`: Vector(1536)
+   - Unique Constraint: `(profile_id, content_hash, model, embedding_version)`
+5. `ai_explanations`:
+   - `id`: UUID (Primary Key)
+   - `profile_id`: UUID (FK -> candidate_profiles.id, ON DELETE CASCADE)
+   - `job_id`: UUID (FK -> jobs.id, ON DELETE CASCADE)
+   - `input_hash`: VARCHAR(64) (SHA-256 of structured match outcome payload)
+   - `model`: VARCHAR(64)
+   - `prompt_version`: VARCHAR(32) (default 'v1')
+   - `explanation_version`: VARCHAR(32) (default 'v1')
+   - `summary`: TEXT
+   - `strengths`: JSON
+   - `gaps`: JSON
+   - `recommendation`: TEXT
+   - Unique Constraint: `(profile_id, job_id, input_hash, model, prompt_version)`

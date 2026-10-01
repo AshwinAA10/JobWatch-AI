@@ -66,6 +66,24 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    # AI Intelligence & Semantic Matching Configuration (Phase 7)
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBEDDING_DIMENSION: int = 1536
+    OPENAI_TIMEOUT: float = 30.0
+    OPENAI_MAX_RETRIES: int = 2
+
+    # AI Feature Flags (Independent Subsystem Control)
+    AI_EXTRACTION_ENABLED: bool = True
+    AI_EMBEDDING_ENABLED: bool = True
+    AI_HYBRID_MATCHING_ENABLED: bool = True
+    AI_EXPLANATIONS_ENABLED: bool = True
+
+    # Hybrid Scoring Weights (must sum to 1.0)
+    HYBRID_DETERMINISTIC_WEIGHT: float = 0.70
+    HYBRID_SEMANTIC_WEIGHT: float = 0.30
+
     @field_validator("DEDUP_HIGH_THRESHOLD")
     @classmethod
     def validate_high_threshold(cls, v: float) -> float:
@@ -141,6 +159,13 @@ class Settings(BaseSettings):
     def validate_jwt_secret(cls, v: str) -> str:
         if not v or len(v.strip()) < 8:
             raise ValueError("JWT_SECRET must be at least 8 characters long")
+        return v
+
+    @field_validator("HYBRID_DETERMINISTIC_WEIGHT", "HYBRID_SEMANTIC_WEIGHT")
+    @classmethod
+    def validate_hybrid_weights(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError("Hybrid weights must be between 0.0 and 1.0")
         return v
 
     @field_validator("CORS_ORIGINS", mode="before")

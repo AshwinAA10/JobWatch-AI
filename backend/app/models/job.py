@@ -19,9 +19,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, GUID, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.ai_explanation import AIExplanation
+    from app.models.ai_job_extraction import AIJobExtraction
     from app.models.career_source import CareerSource
     from app.models.company import Company
     from app.models.job_duplicate import JobDuplicate
+    from app.models.job_embedding import JobEmbedding
     from app.models.job_match import JobMatch
     from app.models.job_requirements import JobRequirements
 
@@ -170,6 +173,21 @@ class Job(Base, TimestampMixin):
     )
     matches: Mapped[List["JobMatch"]] = relationship(
         "JobMatch",
+        back_populates="job",
+        cascade="all, delete-orphan",
+    )
+    ai_extractions: Mapped[List["AIJobExtraction"]] = relationship(
+        "AIJobExtraction",
+        back_populates="job",
+        cascade="all, delete-orphan",
+    )
+    embeddings: Mapped[List["JobEmbedding"]] = relationship(
+        "JobEmbedding",
+        back_populates="job",
+        cascade="all, delete-orphan",
+    )
+    ai_explanations: Mapped[List["AIExplanation"]] = relationship(
+        "AIExplanation",
         back_populates="job",
         cascade="all, delete-orphan",
     )

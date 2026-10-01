@@ -258,3 +258,43 @@ frontend/src/
 - **Pure Engine**: `MatchingEngine` has zero database dependencies, enabling isolated unit testing and high performance batch evaluation.
 - **Dynamic Missing Data Strategy**: Missing job attributes (e.g. undisclosed salary or education) yield `UNKNOWN` or `NOT_APPLICABLE` and are dynamically removed from the denominator rather than penalizing candidate scores.
 - **Deterministic Explanations**: Every reason template traces directly to evaluated dimension outcomes without AI hallucination.
+
+---
+
+## 7. AI Intelligence & Semantic Matching Architecture (Phase 7)
+
+Phase 7 introduces structured LLM extraction, vector embeddings via `pgvector`, semantic cosine similarity, and hybrid scoring while strictly preserving Phase 6 deterministic matching as the authoritative baseline:
+
+```text
+                    JOB
+                     │
+                     ▼
+             Job Description
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+          ▼                     ▼
+   Deterministic           AI Extraction
+   Job Features            & Normalization
+          │                     │
+          │              ┌──────┴──────┐
+          │              ▼             ▼
+          │          Structured     Embeddings
+          │          Requirements      │
+          │              │             │
+          └──────────────┼─────────────┘
+                         ▼
+                 AI Matching Layer
+                         │
+                         ▼
+                 Enhanced MatchResult
+                         │
+                         ▼
+              Candidate / Dashboard
+```
+
+- **Authoritative Deterministic Baseline**: The Phase 6 engine always calculates the baseline score first. Even during AI provider outages, timeouts, or rate limits, the system seamlessly produces valid match results.
+- **Provider Abstraction**: Decoupled behind `LLMProvider` and `EmbeddingProvider`, with production `OpenAIProvider` and zero-network `FakeProvider` for fast, offline CI testing.
+- **pgvector Vector Storage**: Native 1536-dimensional float vectors stored directly in PostgreSQL with SHA-256 content-hash cache validation.
+- **Hybrid Score Synthesis**: Formula $0.70 \times \text{Deterministic} + 0.30 \times \text{Semantic}$ with hard constraint safety guardrails that cap the hybrid score if critical dimensions (e.g., workplace type or required skills) are hard mismatches.
+- **Score-Immutable AI Explanations**: Narrative summaries, strengths, gaps, and recommendations are generated from structured facts; the LLM cannot alter the calculated match score.

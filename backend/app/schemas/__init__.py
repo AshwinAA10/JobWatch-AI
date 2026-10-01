@@ -41,6 +41,12 @@ from app.schemas.job import (
     JobCreate,
     JobRead,
 )
+from app.schemas.ai import (
+    AIExplanationResponse,
+    AIJobRequirements,
+    EnhancedMatchResponse,
+    JobExtractionResponse,
+)
 from app.schemas.matching import (
     DimensionResultSchema,
     JobMatchResponse,
@@ -101,4 +107,8 @@ __all__ = [
     "JobRequirementsResponse",
     "DimensionResultSchema",
     "JobMatchResponse",
+    "AIJobRequirements",
+    "JobExtractionResponse",
+    "AIExplanationResponse",
+    "EnhancedMatchResponse",
 ]

@@ -9,6 +9,8 @@ from app.models.base import Base, GUID, TimestampMixin
 from app.models.enums import ProfileVisibility
 
 if TYPE_CHECKING:
+    from app.models.ai_explanation import AIExplanation
+    from app.models.candidate_embedding import CandidateEmbedding
     from app.models.candidate_preferences import CandidatePreferences
     from app.models.candidate_skill import CandidateSkill
     from app.models.education import Education
@@ -137,6 +139,16 @@ class CandidateProfile(Base, TimestampMixin):
     )
     job_matches: Mapped[List["JobMatch"]] = relationship(
         "JobMatch",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    embeddings: Mapped[List["CandidateEmbedding"]] = relationship(
+        "CandidateEmbedding",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    ai_explanations: Mapped[List["AIExplanation"]] = relationship(
+        "AIExplanation",
         back_populates="profile",
         cascade="all, delete-orphan",
     )

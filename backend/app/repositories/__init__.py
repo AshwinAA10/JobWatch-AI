@@ -1,3 +1,6 @@
+from app.repositories.ai_explanation import AIExplanationRepository
+from app.repositories.ai_job_extraction import AIJobExtractionRepository
+from app.repositories.candidate_embedding import CandidateEmbeddingRepository
 from app.repositories.candidate_preferences import CandidatePreferencesRepository
 from app.repositories.candidate_profile import CandidateProfileRepository
 from app.repositories.candidate_skill import CandidateSkillRepository
@@ -7,6 +10,7 @@ from app.repositories.education import EducationRepository
 from app.repositories.experience import ExperienceRepository
 from app.repositories.job import JobRepository
 from app.repositories.job_duplicate import JobDuplicateRepository
+from app.repositories.job_embedding import JobEmbeddingRepository
 from app.repositories.job_match import JobMatchRepository
 from app.repositories.job_requirements import JobRequirementsRepository
 from app.repositories.monitoring_run import MonitoringRunRepository
@@ -19,6 +23,10 @@ __all__ = [
     "JobRepository",
     "JobRequirementsRepository",
     "JobMatchRepository",
+    "AIJobExtractionRepository",
+    "JobEmbeddingRepository",
+    "CandidateEmbeddingRepository",
+    "AIExplanationRepository",
     "JobDuplicateRepository",
     "MonitoringRunRepository",
     "UserRepository",

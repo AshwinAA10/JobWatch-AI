@@ -1,6 +1,9 @@
 """Database models layer for JobWatch AI (Phase 1)."""
 
 from app.models.base import Base, GUID, TimestampMixin
+from app.models.ai_explanation import AIExplanation
+from app.models.ai_job_extraction import AIJobExtraction
+from app.models.candidate_embedding import CandidateEmbedding
 from app.models.career_source import CareerSource
 from app.models.company import Company
 from app.models.job import Job
@@ -8,6 +11,7 @@ from app.models.job_duplicate import (
     JobDuplicate,
     MatchType,
 )
+from app.models.job_embedding import JobEmbedding
 from app.models.job_match import JobMatch
 from app.models.job_requirements import JobRequirements
 from app.models.monitoring_run import (
@@ -40,6 +44,10 @@ __all__ = [
     "Job",
     "JobRequirements",
     "JobMatch",
+    "AIJobExtraction",
+    "JobEmbedding",
+    "CandidateEmbedding",
+    "AIExplanation",
     "JobDuplicate",
     "MatchType",
     "MonitoringRun",
