@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 8 — Notification & Alerting System
-Status: Multi-Channel Alerting (Email, Webhook), Idempotent Delivery, Atomic Claim Worker, Bounded Retries, and Flood Protection Complete
+Current Phase: Phase 9 — Candidate Dashboard & Job Discovery UI
+Status: Candidate Dashboard, Job Discovery, Match Visualizations, AI Insights, Notifications, and Candidate Settings Complete
 ```
 
-Phase 8 introduces a provider-independent notification subsystem engineered to deliver timely, relevant alerts to candidates when monitored career portals detect positions matching their preferences. It supports Email (SMTP) and outbound Webhooks with HMAC-SHA256 signatures, SSRF protection, deterministic SHA-256 idempotency keying, atomic claiming, bounded exponential backoff retries, and hourly flood control.
+Phase 9 establishes the candidate-facing web application. Built with React 18, Vite, and modern responsive design tokens, it connects directly to backend intelligence to deliver interactive job discovery, deterministic and AI match visualizations, breakdown dimensions, sanitized job descriptions, persistent bookmarking, and multi-channel alerting preferences.
 
 ---
 
@@ -38,7 +38,7 @@ Phase 8 introduces a provider-independent notification subsystem engineered to d
 - [x] **Phase 6** — Matching Engine *(Completed)*
 - [x] **Phase 7** — AI Intelligence *(Completed)*
 - [x] **Phase 8** — Notifications *(Completed)*
-- [ ] **Phase 9** — Dashboard
+- [x] **Phase 9** — Candidate Dashboard & Job Discovery UI *(Completed)*
 - [ ] **Phase 10** — Application Tracking
 - [ ] **Phase 11** — Reliability
 - [ ] **Phase 12** — Production Deployment

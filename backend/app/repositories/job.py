@@ -141,6 +141,92 @@ class JobRepository:
         )
         return list(self.db.scalars(stmt).all())
 
+    def get_by_id_with_relations(self, job_id: UUID) -> Optional[Job]:
+        """Fetch a single Job with company, career source, and requirements loaded."""
+        from sqlalchemy.orm import selectinload
+
+        stmt = (
+            select(Job)
+            .where(Job.id == job_id)
+            .options(
+                selectinload(Job.company),
+                selectinload(Job.career_source),
+                selectinload(Job.requirements),
+            )
+        )
+        return self.db.scalars(stmt).first()
+
+    def search_and_filter(
+        self,
+        q: Optional[str] = None,
+        location: Optional[str] = None,
+        workplace_type: Optional[str] = None,
+        employment_type: Optional[str] = None,
+        company_id: Optional[UUID] = None,
+        is_active: Optional[bool] = True,
+        sort_by: str = "newest",
+        skip: int = 0,
+        limit: int = 50,
+    ) -> Tuple[List[Job], int]:
+        """Search and filter jobs with pagination and sorting.
+
+        Returns (items, total_count).
+        """
+        from sqlalchemy import func, or_
+        from sqlalchemy.orm import selectinload
+        from app.models.company import Company
+
+        stmt = (
+            select(Job)
+            .join(Company, Company.id == Job.company_id, isouter=True)
+            .options(selectinload(Job.company), selectinload(Job.career_source))
+        )
+        count_stmt = select(func.count(Job.id)).join(Company, Company.id == Job.company_id, isouter=True)
+
+        if is_active is not None:
+            stmt = stmt.where(Job.is_active.is_(is_active))
+            count_stmt = count_stmt.where(Job.is_active.is_(is_active))
+
+        if company_id:
+            stmt = stmt.where(Job.company_id == company_id)
+            count_stmt = count_stmt.where(Job.company_id == company_id)
+
+        if workplace_type:
+            stmt = stmt.where(func.lower(Job.workplace_type) == workplace_type.lower())
+            count_stmt = count_stmt.where(func.lower(Job.workplace_type) == workplace_type.lower())
+
+        if employment_type:
+            stmt = stmt.where(func.lower(Job.employment_type) == employment_type.lower())
+            count_stmt = count_stmt.where(func.lower(Job.employment_type) == employment_type.lower())
+
+        if location:
+            loc_pattern = f"%{location.lower()}%"
+            stmt = stmt.where(func.lower(Job.location).like(loc_pattern))
+            count_stmt = count_stmt.where(func.lower(Job.location).like(loc_pattern))
+
+        if q and q.strip():
+            q_pattern = f"%{q.strip().lower()}%"
+            filter_cond = or_(
+                func.lower(Job.title).like(q_pattern),
+                func.lower(Company.name).like(q_pattern),
+                func.lower(Job.location).like(q_pattern),
+            )
+            stmt = stmt.where(filter_cond)
+            count_stmt = count_stmt.where(filter_cond)
+
+        total = self.db.scalar(count_stmt) or 0
+
+        # Sorting
+        if sort_by == "title":
+            stmt = stmt.order_by(Job.title.asc())
+        elif sort_by == "recently_updated":
+            stmt = stmt.order_by(Job.updated_at.desc(), Job.first_seen_at.desc())
+        else:  # "newest" default
+            stmt = stmt.order_by(Job.first_seen_at.desc())
+
+        items = list(self.db.scalars(stmt.offset(skip).limit(limit)).all())
+        return items, total
+
     def list_by_company(
         self,
         company_id: UUID,

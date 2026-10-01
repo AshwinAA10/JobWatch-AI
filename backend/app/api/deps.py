@@ -50,3 +50,21 @@ def get_current_user(
         )
 
     return user
+
+
+def get_current_user_optional(
+    auth_header: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Optional dependency that returns the current User if a valid token is present, else None."""
+    if not auth_header or not auth_header.credentials:
+        return None
+
+    auth_service = AuthService(db)
+    try:
+        user = auth_service.get_user_from_token(auth_header.credentials)
+        if user and user.is_active:
+            return user
+        return None
+    except Exception:
+        return None

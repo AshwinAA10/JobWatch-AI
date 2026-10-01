@@ -38,6 +38,7 @@ from app.models.user import User
 from app.models.notification import Notification
 from app.models.notification_delivery import NotificationDelivery
 from app.models.notification_preference import NotificationPreference
+from app.models.saved_job import SavedJob
 
 __all__ = [
     "Base",
@@ -72,4 +73,5 @@ __all__ = [
     "Notification",
     "NotificationDelivery",
     "NotificationPreference",
+    "SavedJob",
 ]

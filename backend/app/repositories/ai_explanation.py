@@ -15,6 +15,22 @@ class AIExplanationRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    def get_by_profile_and_job(
+        self,
+        profile_id: UUID,
+        job_id: UUID,
+    ) -> Optional[AIExplanation]:
+        """Fetch the most recent AIExplanation record for a profile and job pair."""
+        stmt = (
+            select(AIExplanation)
+            .where(
+                AIExplanation.profile_id == profile_id,
+                AIExplanation.job_id == job_id,
+            )
+            .order_by(AIExplanation.created_at.desc())
+        )
+        return self.db.scalars(stmt).first()
+
     def get_cached(
         self,
         profile_id: UUID,

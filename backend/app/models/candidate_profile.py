@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from app.models.notification import Notification
     from app.models.notification_preference import NotificationPreference
     from app.models.resume import Resume
+    from app.models.saved_job import SavedJob
     from app.models.user import User
 
 
@@ -162,6 +163,11 @@ class CandidateProfile(Base, TimestampMixin):
     )
     notifications: Mapped[List["Notification"]] = relationship(
         "Notification",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+    saved_jobs: Mapped[List["SavedJob"]] = relationship(
+        "SavedJob",
         back_populates="profile",
         cascade="all, delete-orphan",
     )

@@ -1,120 +1,50 @@
-import { useEffect, useState } from 'react'
-import { fetchDbHealth, fetchHealth } from './services/api'
-import { DatabaseHealthCheckResponse, HealthCheckResponse } from './types/api'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { ProtectedRoute } from './components/layout/ProtectedRoute'
+import { AppLayout } from './components/layout/AppLayout'
+
+import { LoginPage } from './pages/Login/LoginPage'
+import { DashboardPage } from './pages/Dashboard/DashboardPage'
+import { JobsPage } from './pages/Jobs/JobsPage'
+import { JobDetailsPage } from './pages/JobDetails/JobDetailsPage'
+import { SavedJobsPage } from './pages/SavedJobs/SavedJobsPage'
+import { NotificationsPage } from './pages/Notifications/NotificationsPage'
+import { ProfilePage } from './pages/Profile/ProfilePage'
+import { SettingsPage } from './pages/Settings/SettingsPage'
 
 export function App() {
-  const [health, setHealth] = useState<HealthCheckResponse | null>(null)
-  const [dbHealth, setDbHealth] = useState<DatabaseHealthCheckResponse | null>(null)
-  const [status, setStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
-  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    fetchHealth()
-      .then((data) => {
-        if (isMounted) {
-          setHealth(data)
-          setStatus('connected')
-        }
-      })
-      .catch((err: Error) => {
-        if (isMounted) {
-          setStatus('disconnected')
-          setErrorMessage(err.message)
-        }
-      })
-
-    fetchDbHealth()
-      .then((data) => {
-        if (isMounted) {
-          setDbHealth(data)
-          setDbStatus('connected')
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setDbStatus('disconnected')
-        }
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
   return (
-    <div className="container">
-      <header className="header">
-        <span className="badge">Phase 5</span>
-        <h1 className="title">JobWatch AI</h1>
-      </header>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Authentication Route */}
+          <Route path="/login" element={<LoginPage />} />
 
-      <p className="subtitle">
-        Automated Career Portal Monitoring & Opportunity Intelligence.
-        Phase 5 establishes candidate profiles, professional skills, employment history, education, job preferences, and secure authentication foundation.
-      </p>
-
-      <div className="status-card">
-        <div className="status-row">
-          <span className="status-label">Phase</span>
-          <span className="status-value">5 — User Profiles & Candidate Experience</span>
-        </div>
-        <div className="status-row">
-          <span className="status-label">Frontend Status</span>
-          <span className="status-value status-healthy">Operational</span>
-        </div>
-        <div className="status-row">
-          <span className="status-label">Backend Process</span>
-          <span
-            className={`status-value ${
-              status === 'connected'
-                ? 'status-healthy'
-                : status === 'checking'
-                ? 'status-checking'
-                : 'status-error'
-            }`}
+          {/* Authenticated Application Shell */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
           >
-            {status === 'connected' && `Healthy (${health?.version})`}
-            {status === 'checking' && 'Connecting to /api/v1/health...'}
-            {status === 'disconnected' && `Disconnected (${errorMessage || 'Offline'})`}
-          </span>
-        </div>
-        <div className="status-row">
-          <span className="status-label">Database Readiness</span>
-          <span
-            className={`status-value ${
-              dbStatus === 'connected'
-                ? 'status-healthy'
-                : dbStatus === 'checking'
-                ? 'status-checking'
-                : 'status-error'
-            }`}
-          >
-            {dbStatus === 'connected' && `Connected (${dbHealth?.latency_ms} ms)`}
-            {dbStatus === 'checking' && 'Probing /api/v1/health/db...'}
-            {dbStatus === 'disconnected' && 'Disconnected / Offline'}
-          </span>
-        </div>
-        {health && (
-          <>
-            <div className="status-row">
-              <span className="status-label">Backend Environment</span>
-              <span className="status-value">{health.environment}</span>
-            </div>
-            <div className="status-row">
-              <span className="status-label">Last Health Ping</span>
-              <span className="status-value">{new Date(health.timestamp).toLocaleTimeString()}</span>
-            </div>
-          </>
-        )}
-      </div>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/jobs" element={<JobsPage />} />
+            <Route path="/jobs/:id" element={<JobDetailsPage />} />
+            <Route path="/saved" element={<SavedJobsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
 
-      <p className="roadmap-preview">
-        Next milestone: Phase 6 — Matching Engine (Profile-to-Job Scoring & Fit Evaluation)
-      </p>
-    </div>
+            {/* Root redirect to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

@@ -349,3 +349,48 @@ Phase 7 introduces structured LLM extraction, vector embeddings via `pgvector`, 
 - **Multi-Tenant Isolation**: Candidate notifications and preferences are strictly isolated via user authentication tokens.
 - **Idempotency & Flood Protection**: SHA-256 idempotency keying bound to canonical job identities prevents duplicate alerts from repeat monitoring runs or portal reposts. Hourly caps protect candidates from alert spam.
 - **Atomic Claims & Stale Recovery**: Safe PostgreSQL concurrency prevents race conditions across multi-worker environments, recovering hung executions automatically.
+
+---
+
+## 8. Candidate Dashboard & Job Discovery UI Architecture (Phase 9 Active)
+
+```text
+               Candidate Web Browser (Desktop / Tablet / Mobile)
+                                       │
+                                       ▼
+                       React 18 + Vite Frontend Application
+                                       │
+             ┌─────────────────────────┴─────────────────────────┐
+             ▼                                                   ▼
+       Public Route                                      Protected Shell
+     (/login — Sign In / Register)                  (AuthProvider + AppLayout)
+                                                                 │
+         ┌───────────────┬───────────────┬───────────────────────┼───────────────────────┬───────────────┐
+         ▼               ▼               ▼                       ▼                       ▼               ▼
+    /dashboard         /jobs         /jobs/:id                 /saved             /notifications      /profile & /settings
+   (Recommended,   (Discovery &    (Deep Link,              (Bookmarked          (Alert History,    (Skills, Exp, Edu,
+   Metrics, Feeds)  Filtering)    Sanitized HTML,           Persistence)          Unread Counter,    Preferences & Thresholds)
+                                  Match Breakdown,                                Mark as Read)
+                                  AI Insights)
+         │               │               │                       │                       │               │
+         └───────────────┴───────────────┴───────────────┬───────┴───────────────────────┴───────────────┘
+                                                         ▼
+                                            Typed API Services Layer
+                                       (auth, jobs, matching, notifications, profile)
+                                                         │
+                                                         ▼
+                                          FastAPI Backend API Master Router
+                                              (http://localhost:8000/api/v1)
+                                                         │
+                     ┌───────────────────┬───────────────┼───────────────┬───────────────────┐
+                     ▼                   ▼               ▼               ▼                   ▼
+                /api/v1/auth       /api/v1/jobs   /api/v1/profile /api/v1/notifications /api/v1/ai
+```
+
+### Key Principles & Safeguards
+- **Backend as Source of Truth**: The UI never calculates match scores, deduplication status, or eligibility; it purely formats and renders backend intelligence.
+- **Safe HTML Sanitization**: External job descriptions sourced from Greenhouse, Lever, and Workday portals are sanitized using `DOMPurify` before rendering to protect against XSS and script execution.
+- **AI Narrative Fallback**: If LLM narrative explanations are unavailable, deterministic match reasons and category breakdowns render seamlessly with zero UI degradation.
+- **Persistent Bookmarks**: Saved jobs are persisted in PostgreSQL via `SavedJob` entities, surviving session clearance and cross-device usage.
+- **Responsive & Accessible**: Strict adherence to accessible form labels, contrast requirements, and dynamic responsive layouts tested across 1280px, 1024px, 768px, and 390px viewports.
+
