@@ -26,6 +26,35 @@ def get_health(settings: Settings = Depends(get_settings)) -> HealthResponse:
 
 
 @router.get(
+    "/health/live",
+    response_model=HealthResponse,
+    summary="Process Liveness Probe",
+    description="Confirms that the FastAPI application process is alive and responsive.",
+    tags=["System"],
+)
+def get_liveness(settings: Settings = Depends(get_settings)) -> HealthResponse:
+    """Liveness probe indicating the HTTP process is responsive."""
+    return HealthResponse(
+        status="healthy",
+        app_name=settings.APP_NAME,
+        version=settings.APP_VERSION,
+        environment=settings.APP_ENV,
+    )
+
+
+@router.get(
+    "/health/ready",
+    response_model=DatabaseHealthResponse,
+    summary="Service Readiness Probe",
+    description="Validates that critical backend dependencies (PostgreSQL) are connected and ready to serve traffic.",
+    tags=["System"],
+)
+def get_readiness() -> DatabaseHealthResponse:
+    """Readiness probe validating database connectivity."""
+    return get_db_health()
+
+
+@router.get(
     "/health/db",
     response_model=DatabaseHealthResponse,
     summary="Database Readiness Check",
@@ -49,3 +78,15 @@ def get_db_health() -> DatabaseHealthResponse:
         database="connected",
         latency_ms=latency_ms,
     )
+
+
+@router.get(
+    "/metrics",
+    summary="Application Telemetry Metrics",
+    description="Returns in-memory operational metrics for HTTP requests, errors, AI requests, and connectors.",
+    tags=["System"],
+)
+def get_metrics():
+    """Retrieve telemetry metrics summary."""
+    from app.core.metrics import metrics
+    return metrics.get_metrics_summary()

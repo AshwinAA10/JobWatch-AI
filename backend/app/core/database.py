@@ -17,6 +17,9 @@ def create_db_engine(database_url: str) -> Engine:
     is_sqlite = database_url.startswith("sqlite")
     if is_sqlite:
         connect_args["check_same_thread"] = False
+    else:
+        # Prevent database connection hangs on dead/unreachable PostgreSQL instances
+        connect_args["connect_timeout"] = settings.DB_CONNECT_TIMEOUT
 
     pool_kwargs = {
         "pool_pre_ping": True,

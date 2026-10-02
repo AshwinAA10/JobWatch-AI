@@ -43,7 +43,13 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
     DB_POOL_RECYCLE: int = 1800
+    DB_CONNECT_TIMEOUT: int = 10
     DB_ECHO: bool = False
+
+    # Reliability & Production Hardening (Phase 11)
+    RATE_LIMIT_ENABLED: bool = False
+    AUTH_RATE_LIMIT_PER_MINUTE: int = 15
+    API_RATE_LIMIT_PER_MINUTE: int = 120
 
     # Monitoring Engine Configuration (Phase 3)
     MONITORING_ENABLED: bool = False
@@ -196,6 +202,43 @@ class Settings(BaseSettings):
         elif isinstance(v, list):
             return v
         return []
+
+    def validate_production_configuration(self) -> None:
+        """Fail fast if critical security or infrastructure settings are invalid in production."""
+        if self.APP_ENV.lower() not in ("production", "prod"):
+            return
+
+        errors: List[str] = []
+
+        # 1. DEBUG must be False
+        if self.DEBUG:
+            errors.append("DEBUG mode must be disabled in production.")
+
+        # 2. Secret key strength & non-default check
+        insecure_keys = [
+            "dev-insecure-jwt-secret-key-change-in-production-min32chars",
+            "change_this_to_a_secure_random_string_in_production",
+            "secret",
+            "changeme",
+        ]
+        if self.JWT_SECRET in insecure_keys or len(self.JWT_SECRET) < 32:
+            errors.append(
+                "JWT_SECRET must be at least 32 characters and cannot use default/insecure development keys in production."
+            )
+
+        # 3. Database URL must not use default dev credentials
+        if "jobwatch:jobwatch_dev" in self.DATABASE_URL:
+            errors.append("DATABASE_URL must not use default development credentials (jobwatch_dev) in production.")
+
+        # 4. CORS Origins must not contain wildcard or empty list in production
+        if not self.CORS_ORIGINS or "*" in self.CORS_ORIGINS:
+            errors.append("CORS_ORIGINS must be explicitly configured and cannot be empty or contain '*' in production.")
+
+        if errors:
+            raise RuntimeError(
+                f"Production configuration validation failed ({len(errors)} errors):\n - "
+                + "\n - ".join(errors)
+            )
 
 
 @lru_cache()
