@@ -32,7 +32,7 @@ services:
       - BACKEND_HOST=0.0.0.0
       - BACKEND_PORT=8000
       - API_V1_STR=/api/v1
-      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
       - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
@@ -41,15 +41,48 @@ services:
       - AI_EMBEDDING_ENABLED=${AI_EMBEDDING_ENABLED:-true}
       - AI_HYBRID_MATCHING_ENABLED=${AI_HYBRID_MATCHING_ENABLED:-true}
       - AI_EXPLANATIONS_ENABLED=${AI_EXPLANATIONS_ENABLED:-true}
-    volumes:
-      - ./backend:/app
+      - MONITORING_ENABLED=false
     depends_on:
       postgres:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
 
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jobwatch-worker
+    environment:
+      - APP_NAME=JobWatch AI
+      - APP_ENV=development
+      - APP_VERSION=0.1.0
+      - DEBUG=false
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MONITORING_ENABLED=true
+      - MONITORING_INTERVAL_SECONDS=900
+      - NOTIFICATIONS_ENABLED=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    command: python -m app.worker
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    container_name: jobwatch-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   postgres_data:
-
-# Future phase infrastructure (Redis, Celery Workers) will be introduced in Phase 3+.

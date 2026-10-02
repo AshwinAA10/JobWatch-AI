@@ -48,7 +48,36 @@ curl -s http://localhost:8000/health/ready
 
 ---
 
-## 3. Proposed Initial Operational Targets (SLOs)
+## 3. Operational Procedures
+
+### Deploying a New Release
+1. Verify CI is green on GitHub Actions.
+2. Trigger deployment workflow or platform deploy hook.
+3. Run smoke tests:
+   ```bash
+   python scripts/smoke_test.py --target-url https://api.jobwatch.ai
+   ```
+
+### Running Production Migrations
+```bash
+# Execute forward migrations against production DB
+alembic upgrade head
+
+# Confirm zero drift
+alembic check
+```
+
+### Viewing Logs & Traces
+- Filter logs by `request_id` to correlate an entire user interaction.
+- Application logs automatically mask passwords, bearer tokens, and DB connection strings.
+
+### Managing Background Workers
+- The background worker runs as a dedicated process: `python -m app.worker`.
+- To restart: send `SIGTERM` to the container; it will complete active notification batches and terminate cleanly within 15 seconds.
+
+---
+
+## 4. Proposed Initial Operational Targets (SLOs)
 
 - **API Availability**: ≥ 99.9% uptime for core API endpoints.
 - **API Latency**: p95 < 250ms for job queries, p95 < 150ms for application CRUD.

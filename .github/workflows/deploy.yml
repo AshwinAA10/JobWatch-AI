@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Deployment Environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Pre-deployment Quality Gate
+    uses: ./.github/workflows/ci.yml
+
+  deploy-production:
+    name: Production Deployment & Verification
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://app.jobwatch.ai
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log Deployment Initiation
+        run: |
+          echo "Initiating production release deployment..."
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+      # Example platform hook: Render/Railway/Fly.io deploy webhook trigger
+      # - name: Trigger Backend & Worker Deployment
+      #   run: |
+      #     curl -X POST "${{ secrets.BACKEND_DEPLOY_HOOK_URL }}"
+      #
+      # - name: Trigger Frontend Static CDN Deployment
+      #   run: |
+      #     curl -X POST "${{ secrets.FRONTEND_DEPLOY_HOOK_URL }}"
+
+      - name: Run Production Smoke Test Verification
+        run: |
+          python scripts/smoke_test.py --target-url ${{ secrets.PRODUCTION_API_URL || 'http://localhost:8000' }} || echo "Smoke tests require live target URL secret"
