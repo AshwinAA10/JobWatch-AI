@@ -24,6 +24,15 @@ class JobEmbeddingRepository:
         )
         return self.db.scalars(stmt).first()
 
+    def list_all_active_embeddings(self, limit: int = 500) -> List[JobEmbedding]:
+        """Fetch active job embeddings for semantic similarity comparisons."""
+        stmt = (
+            select(JobEmbedding)
+            .order_by(JobEmbedding.created_at.desc())
+            .limit(limit)
+        )
+        return list(self.db.scalars(stmt).all())
+
     def get_cached(
         self,
         job_id: UUID,

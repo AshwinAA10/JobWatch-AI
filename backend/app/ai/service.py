@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
 
@@ -91,6 +91,86 @@ class AIIntelligenceService:
         self.matching_service = MatchingService(db)
         self.job_repo = JobRepository(db)
         self.profile_repo = CandidateProfileRepository(db)
+
+        # Phase 13 Advanced AI Extensions
+        from app.ai.ontology.service import skill_ontology
+        from app.ai.ranking.service import PersonalizedRankingService
+        from app.ai.search.service import SemanticSearchService
+
+        self.ontology = skill_ontology
+        self.search_service = SemanticSearchService(
+            db=db,
+            embedding_service=self.embeddings,
+            embedding_provider=self.embedding_provider,
+        )
+        self.ranking_service = PersonalizedRankingService(db)
+
+    def analyze_skill_gaps(self, user_id: UUID, job_id: UUID) -> Dict[str, Any]:
+        """Perform ontology-aware skill gap and transferable skills analysis between candidate and job."""
+        profile = self.profile_repo.get_by_user_id(user_id)
+        if not profile:
+            raise ProfileNotFoundError(user_id=user_id)
+
+        job = self.job_repo.get_by_id(job_id)
+        if not job:
+            raise JobNotFoundError(job_id=job_id)
+
+        candidate_skills = [
+            s.skill.name if getattr(s, "skill", None) is not None else getattr(s, "name", str(s))
+            for s in profile.skills
+        ]
+        required_skills: List[str] = []
+        preferred_skills: List[str] = []
+
+        if job.requirements:
+            if hasattr(job.requirements, "required_skills") and isinstance(job.requirements.required_skills, list):
+                required_skills = list(job.requirements.required_skills)
+            elif hasattr(job.requirements, "skills"):
+                required_skills = [s.name for s in job.requirements.skills if getattr(s, "is_required", True)]
+            
+            if hasattr(job.requirements, "preferred_skills") and isinstance(job.requirements.preferred_skills, list):
+                preferred_skills = list(job.requirements.preferred_skills)
+            elif hasattr(job.requirements, "skills"):
+                preferred_skills = [s.name for s in job.requirements.skills if not getattr(s, "is_required", True)]
+
+        # If deterministic requirements are empty, inspect cached AI extraction
+        if not required_skills and not preferred_skills:
+            cached_extraction = self.get_cached_job_extraction(job_id)
+            if cached_extraction and cached_extraction.structured_requirements:
+                req_obj = cached_extraction.structured_requirements
+                required_skills = req_obj.get("required_skills", [])
+                preferred_skills = req_obj.get("preferred_skills", [])
+
+        gap_data = self.ontology.analyze_skill_gaps(
+            candidate_skills=candidate_skills,
+            required_skills=required_skills,
+            preferred_skills=preferred_skills,
+        )
+
+        return {
+            "job_id": job.id,
+            "profile_id": profile.id,
+            **gap_data,
+        }
+
+    def semantic_search_jobs(
+        self,
+        query: str,
+        limit: int = 20,
+        workplace_type: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Search jobs using natural language query embedding."""
+        return self.search_service.search_jobs(
+            query=query,
+            limit=limit,
+            workplace_type=workplace_type,
+            location=location,
+        )
+
+    def find_similar_jobs(self, job_id: UUID, limit: int = 5) -> List[Dict[str, Any]]:
+        """Discover similar career opportunities based on semantic vectors."""
+        return self.search_service.find_similar_jobs(job_id=job_id, limit=limit)
 
     def extract_job_requirements(
         self,

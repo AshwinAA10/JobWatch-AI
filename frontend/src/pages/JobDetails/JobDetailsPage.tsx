@@ -23,6 +23,7 @@ import { MatchScoreBadge } from '../../components/matching/MatchScoreBadge'
 import { MatchBreakdownCard } from '../../components/matching/MatchBreakdownCard'
 import { MatchExplanationCard } from '../../components/matching/MatchExplanationCard'
 import { AIInsightsCard } from '../../components/matching/AIInsightsCard'
+import { SkillGapCard } from '../../components/matching/SkillGapCard'
 import { ApplicationStatusBadge } from '../../components/applications/ApplicationStatusBadge'
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton'
 import { ErrorMessage } from '../../components/common/ErrorMessage'
@@ -384,6 +385,9 @@ export const JobDetailsPage: React.FC = () => {
               matchedCriteria: job.matched_criteria,
             }}
           />
+
+          {/* Phase 13 Skill Gap & Ontology Card */}
+          <SkillGapCard jobId={job.id} token={token} />
 
           {/* Deterministic Explanation Card */}
           <MatchExplanationCard

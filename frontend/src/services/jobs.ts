@@ -136,3 +136,49 @@ export async function unsaveJob(
 
   return response.json()
 }
+
+export async function fetchSkillGaps(
+  jobId: string,
+  token: string,
+): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/ai/jobs/${jobId}/skill-gaps`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to fetch skill gap analysis (${response.status})`)
+  }
+  return response.json()
+}
+
+export async function searchSemanticJobs(
+  query: string,
+  token?: string | null,
+  limit: number = 20,
+): Promise<any[]> {
+  const params = new URLSearchParams({ q: query, limit: limit.toString() })
+  const headers: Record<string, string> = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const response = await fetch(`${API_BASE_URL}/ai/jobs/search/semantic?${params}`, { headers })
+  if (!response.ok) {
+    throw new Error(`Semantic search failed (${response.status})`)
+  }
+  return response.json()
+}
+
+export async function fetchSimilarJobs(
+  jobId: string,
+  token?: string | null,
+): Promise<any[]> {
+  const headers: Record<string, string> = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const response = await fetch(`${API_BASE_URL}/ai/jobs/${jobId}/similar`, { headers })
+  if (!response.ok) {
+    throw new Error(`Failed to fetch similar jobs (${response.status})`)
+  }
+  return response.json()
+}
+

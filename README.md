@@ -19,11 +19,11 @@ JobWatch AI automates this workflow by directly monitoring career portals, detec
 ## 2. Current Status
 
 ```text
-Current Phase: Phase 12 — Production Deployment & CI/CD
-Status: Complete — Multi-stage hardened Docker containerization (non-root unprivileged backend and Nginx SPA frontend), standalone background worker process, automated GitHub Actions CI/CD workflows, post-deployment smoke testing probes, production configuration validator, and comprehensive disaster recovery runbooks.
+Current Phase: Phase 13 — Advanced AI & Semantic Intelligence
+Status: Complete — Skill ontology with alias normalization, transferable skills detection, skill gap analysis, natural language semantic search, career similarity, personalized ranking based on candidate interaction signals, AI cost/telemetry tracking, and evidence-based explainability. All 292 backend tests and 31 frontend tests passing (100%).
 ```
 
-Phase 12 establishes a repeatable, secure, observable, and rollback-capable production deployment process across frontend, backend, background worker, and PostgreSQL infrastructure.
+Phase 13 evolves JobWatch AI into a deep semantic intelligence platform capable of understanding skills, jobs, candidate profiles, and career relationships with deterministic safety guardrails.
 
 ---
 
@@ -42,7 +42,7 @@ Phase 12 establishes a repeatable, secure, observable, and rollback-capable prod
 - [x] **Phase 10** — Application Tracking & Application Lifecycle *(Completed)*
 - [x] **Phase 11** — Reliability & Production Hardening *(Completed)*
 - [x] **Phase 12** — Production Deployment & CI/CD *(Completed)*
-- [ ] **Phase 13** — Advanced AI
+- [x] **Phase 13** — Advanced AI & Semantic Intelligence *(Completed)*
 
 ---
 
@@ -128,7 +128,7 @@ flowchart TD
 - **Application Tracking & Lifecycle**: Controlled lifecycle statuses (`APPLIED` to `ACCEPTED`), transition validation, immutable audit timeline, candidate private notes, scheduled interview management
 - **Frontend Architecture**: React 18, TypeScript, Vite, CSS design system tokens (dark mode, glassmorphism, micro-animations), Lucide React icons, DOMPurify
 - **Testing & Quality**: 
-  - Backend: PyTest (274 tests passing, 100% test pass rate)
+  - Backend: PyTest (292 tests passing, 100% test pass rate)
   - Frontend: Vitest + React Testing Library (31 tests passing, 100% test pass rate)
 - **Containerization**: Docker, Docker Compose (PostgreSQL 16 Alpine + FastAPI)
 
@@ -239,6 +239,10 @@ Visit the frontend at: `http://localhost:5173`
 ## 8. Documentation
 
 - [Architecture Specification](docs/architecture.md)
+- [AI Architecture Specification](docs/ai-architecture.md)
+- [AI Operations & Telemetry](docs/ai-operations.md)
+- [AI Security & Prompt Defense](docs/ai-security.md)
+- [AI Evaluation & Benchmarks](docs/ai-evaluation.md)
 - [Connectors Specification](docs/connectors.md)
 - [Monitoring Engine Specification](docs/monitoring.md)
 - [Deduplication Specification](docs/deduplication.md)

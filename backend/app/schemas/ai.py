@@ -109,3 +109,40 @@ class EnhancedMatchResponse(BaseModel):
     calculated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SkillGapResponse(BaseModel):
+    """Structured breakdown of candidate skills vs job requirements with ontology insights."""
+
+    job_id: UUID
+    profile_id: UUID
+    matched_required: List[str] = Field(default_factory=list)
+    matched_preferred: List[str] = Field(default_factory=list)
+    transferable_matches: List[Dict[str, Any]] = Field(default_factory=list)
+    missing_required: List[str] = Field(default_factory=list)
+    missing_preferred: List[str] = Field(default_factory=list)
+    required_coverage: float = 1.0
+
+
+class SemanticSearchResult(BaseModel):
+    """Individual item returned in a semantic natural language query search."""
+
+    job_id: UUID
+    title: str
+    company_name: Optional[str] = None
+    location: Optional[str] = None
+    workplace_type: Optional[str] = None
+    semantic_similarity: float
+    relevance_score: float
+
+
+class SimilarJobItem(BaseModel):
+    """Adjacent or similar job recommendation based on semantic vectors."""
+
+    job_id: UUID
+    title: str
+    company_name: Optional[str] = None
+    location: Optional[str] = None
+    workplace_type: Optional[str] = None
+    similarity: float
+    match_reason: str
