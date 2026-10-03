@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 import uuid
-from sqlalchemy import Float, ForeignKey, Integer, JSON, String
+from sqlalchemy import Float, ForeignKey, Index, Integer, JSON, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -15,6 +15,10 @@ class JobRequirements(Base, TimestampMixin):
     """Structured requirements and qualifications associated with a Job."""
 
     __tablename__ = "job_requirements"
+    __table_args__ = (
+        UniqueConstraint("job_id", name="uq_job_requirements_job_id"),
+        Index("ix_job_requirements_job_id", "job_id", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -24,8 +28,6 @@ class JobRequirements(Base, TimestampMixin):
     job_id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
         ForeignKey("jobs.id", ondelete="CASCADE"),
-        unique=True,
-        index=True,
         nullable=False,
     )
 

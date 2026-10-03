@@ -109,6 +109,7 @@ class MonitoringRun(Base, TimestampMixin):
 
     __table_args__ = (
         Index("ix_monitoring_runs_source_started", "career_source_id", "started_at"),
+        Index("ix_monitoring_runs_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:

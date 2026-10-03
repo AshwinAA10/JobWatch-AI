@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 import uuid
-from sqlalchemy import String
+from sqlalchemy import Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -15,6 +15,10 @@ class Skill(Base, TimestampMixin):
     """Represents a canonical skill or capability that candidates can possess."""
 
     __tablename__ = "skills"
+    __table_args__ = (
+        UniqueConstraint("normalized_name", name="uq_skills_normalized_name"),
+        Index("ix_skills_normalized_name", "normalized_name", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -27,8 +31,6 @@ class Skill(Base, TimestampMixin):
     )
     normalized_name: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
-        index=True,
         nullable=False,
     )
     category: Mapped[Optional[str]] = mapped_column(

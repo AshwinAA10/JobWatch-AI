@@ -20,13 +20,12 @@ async def run_notification_cycle():
     db = SessionLocal()
     try:
         worker = NotificationDeliveryWorker(db)
-        claimed = worker.claim_pending_deliveries(batch_size=25)
-        if claimed:
-            logger.info("Claimed %d pending notification deliveries", len(claimed))
-            for delivery in claimed:
-                worker.process_delivery(delivery.id)
+        processed = worker.process_pending_deliveries(limit=25)
+        if processed > 0:
+            logger.info("Processed %d pending notification deliveries", processed)
     except Exception as exc:
         logger.error("Error in notification worker cycle: %s", exc)
+
     finally:
         db.close()
 

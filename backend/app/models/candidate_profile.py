@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 import uuid
-from sqlalchemy import Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -28,6 +28,10 @@ class CandidateProfile(Base, TimestampMixin):
     """Core profile entity holding professional details, background, and relationships."""
 
     __tablename__ = "candidate_profiles"
+    __table_args__ = (
+        UniqueConstraint("user_id", name="uq_candidate_profiles_user_id"),
+        Index("ix_candidate_profiles_user_id", "user_id", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -37,8 +41,6 @@ class CandidateProfile(Base, TimestampMixin):
     user_id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
         ForeignKey("users.id", ondelete="CASCADE"),
-        unique=True,
-        index=True,
         nullable=False,
     )
 

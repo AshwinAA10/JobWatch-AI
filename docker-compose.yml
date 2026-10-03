@@ -1,27 +1,11 @@
 services:
-  postgres:
-    image: pgvector/pgvector:pg16
-    container_name: jobwatch-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-jobwatch}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobwatch_dev}
-      POSTGRES_DB: ${POSTGRES_DB:-jobwatch}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobwatch} -d ${POSTGRES_DB:-jobwatch}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: jobwatch-backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8000:8000"
     environment:
@@ -33,7 +17,7 @@ services:
       - BACKEND_PORT=8000
       - API_V1_STR=/api/v1
       - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
-      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
+      - DATABASE_URL=${DOCKER_DATABASE_URL}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       - OPENAI_EMBEDDING_MODEL=${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
@@ -42,9 +26,6 @@ services:
       - AI_HYBRID_MATCHING_ENABLED=${AI_HYBRID_MATCHING_ENABLED:-true}
       - AI_EXPLANATIONS_ENABLED=${AI_EXPLANATIONS_ENABLED:-true}
       - MONITORING_ENABLED=false
-    depends_on:
-      postgres:
-        condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
 
@@ -53,21 +34,24 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: jobwatch-worker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - APP_NAME=JobWatch AI
       - APP_ENV=development
       - APP_VERSION=0.1.0
       - DEBUG=false
-      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-jobwatch}:${POSTGRES_PASSWORD:-jobwatch_dev}@postgres:5432/${POSTGRES_DB:-jobwatch}
+      - DATABASE_URL=${DOCKER_DATABASE_URL}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+
       - MONITORING_ENABLED=true
       - MONITORING_INTERVAL_SECONDS=900
       - NOTIFICATIONS_ENABLED=true
     depends_on:
-      postgres:
-        condition: service_healthy
       backend:
         condition: service_started
+    healthcheck:
+      disable: true
     command: python -m app.worker
     restart: unless-stopped
 
@@ -80,9 +64,13 @@ services:
     container_name: jobwatch-frontend
     ports:
       - "3000:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
     depends_on:
       - backend
     restart: unless-stopped
 
-volumes:
-  postgres_data:
+

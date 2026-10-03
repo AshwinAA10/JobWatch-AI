@@ -2,7 +2,16 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import uuid
-from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, JSON, String
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Integer,
+    JSON,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -16,6 +25,8 @@ class CandidatePreferences(Base, TimestampMixin):
 
     __tablename__ = "candidate_preferences"
     __table_args__ = (
+        UniqueConstraint("profile_id", name="uq_candidate_preferences_profile_id"),
+        Index("ix_candidate_preferences_profile_id", "profile_id", unique=True),
         CheckConstraint(
             "minimum_salary IS NULL OR maximum_salary IS NULL OR maximum_salary >= minimum_salary",
             name="ck_preferences_salary_range",
@@ -35,8 +46,6 @@ class CandidatePreferences(Base, TimestampMixin):
         GUID(),
         ForeignKey("candidate_profiles.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,
-        index=True,
     )
 
     # Preferences collections stored as JSON arrays for flexible multi-value criteria

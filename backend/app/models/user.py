@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 import uuid
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -16,6 +16,10 @@ class User(Base, TimestampMixin):
     """User account entity managing authentication credentials and state."""
 
     __tablename__ = "users"
+    __table_args__ = (
+        UniqueConstraint("email", name="uq_users_email"),
+        Index("ix_users_email", "email", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -24,8 +28,6 @@ class User(Base, TimestampMixin):
     )
     email: Mapped[str] = mapped_column(
         String(255),
-        unique=True,
-        index=True,
         nullable=False,
     )
     password_hash: Mapped[str] = mapped_column(

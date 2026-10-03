@@ -7,9 +7,11 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     JSON,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,6 +28,10 @@ class Notification(Base, TimestampMixin):
     """Notification event record emitted for a candidate upon matching or system alerts."""
 
     __tablename__ = "notifications"
+    __table_args__ = (
+        UniqueConstraint("idempotency_key", name="uq_notifications_idempotency_key"),
+        Index("ix_notifications_idempotency_key", "idempotency_key", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -53,7 +59,6 @@ class Notification(Base, TimestampMixin):
         GUID(),
         ForeignKey("job_matches.id", ondelete="SET NULL"),
         nullable=True,
-        index=True,
     )
 
     # Content
@@ -87,8 +92,6 @@ class Notification(Base, TimestampMixin):
     # Idempotency key preventing duplicate notifications from repeated runs
     idempotency_key: Mapped[str] = mapped_column(
         String(64),
-        unique=True,
-        index=True,
         nullable=False,
     )
 

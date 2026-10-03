@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Optional
 import uuid
-from sqlalchemy import Boolean, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Float, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, GUID, TimestampMixin
@@ -15,6 +15,10 @@ class NotificationPreference(Base, TimestampMixin):
     """Candidate notification settings controlling channels, frequency, and score thresholds."""
 
     __tablename__ = "notification_preferences"
+    __table_args__ = (
+        UniqueConstraint("profile_id", name="uq_notification_preferences_profile_id"),
+        Index("ix_notification_preferences_profile_id", "profile_id", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -25,8 +29,6 @@ class NotificationPreference(Base, TimestampMixin):
         GUID(),
         ForeignKey("candidate_profiles.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,
-        index=True,
     )
 
     # Channel toggles
