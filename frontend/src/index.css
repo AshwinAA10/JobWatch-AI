@@ -154,6 +154,20 @@ button, input, select, textarea {
   .mobile-only { display: block !important; }
 }
 
+/* Accessibility screen-reader only utility */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}
+
 /* ==========================================================================
    App Shell Layout
    ========================================================================== */
@@ -986,22 +1000,23 @@ button, input, select, textarea {
    Job Cards & Grid
    ========================================================================== */
 .job-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: var(--console-bg-surface);
+  border: 1px solid var(--console-border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: 1.25rem 1.35rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   transition: all var(--transition-normal);
   position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .job-card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-medium);
+  background: var(--console-bg-elevated);
+  border-color: var(--console-border-bright);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(14, 165, 233, 0.08);
 }
 
 .job-card-saved {
@@ -1025,8 +1040,33 @@ button, input, select, textarea {
 
 .job-card-company {
   font-size: 0.825rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+}
+
+.source-pill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.02em;
+}
+
+.canonical-pill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  color: #a5b4fc;
+  border-radius: var(--radius-xs);
   display: inline-flex;
   align-items: center;
 }
@@ -1036,6 +1076,12 @@ button, input, select, textarea {
   font-weight: 600;
   color: var(--text-main);
   line-height: 1.3;
+}
+
+.job-title-link {
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
 .job-title-link:hover {
@@ -1058,7 +1104,21 @@ button, input, select, textarea {
   color: var(--text-secondary);
 }
 
+.meta-pill {
+  font-family: var(--font-mono);
+  font-size: 0.725rem;
+  font-weight: 500;
+  padding: 0.15rem 0.45rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
 .job-date-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
@@ -1066,39 +1126,52 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 0.65rem;
   flex-shrink: 0;
 }
 
 .btn-icon-save {
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.35rem;
   border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all var(--transition-fast);
 }
 
 .btn-icon-save:hover {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.3);
   color: var(--color-accent-light);
 }
 
 .btn-saved {
+  background: rgba(14, 165, 233, 0.15) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
   color: var(--color-accent-light) !important;
 }
 
 .job-reasons-preview {
   font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.4rem 0.65rem;
+  background: rgba(16, 185, 129, 0.06);
+  padding: 0.45rem 0.75rem;
   border-radius: var(--radius-sm);
-  border-left: 2px solid var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-left: 3px solid #10b981;
 }
 
 .reasons-label {
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #34d399;
+  margin-right: 0.35rem;
 }
 
 .reasons-text {
@@ -1110,14 +1183,16 @@ button, input, select, textarea {
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--border-subtle);
-  padding-top: 0.75rem;
+  padding-top: 0.85rem;
   margin-top: auto;
+  gap: 0.75rem;
 }
 
 .footer-left {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .save-error-hint {
@@ -1565,9 +1640,9 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--bg-card);
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--border-medium);
+  background: var(--console-bg-surface);
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--console-border-subtle);
   border-radius: var(--radius-sm);
 }
 
@@ -1576,7 +1651,7 @@ button, input, select, textarea {
 /* Jobs Split Layout */
 .jobs-split-container {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 270px 1fr;
   gap: 1.75rem;
   align-items: flex-start;
 }
@@ -1591,10 +1666,11 @@ button, input, select, textarea {
 }
 
 .filters-container {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: var(--console-bg-surface);
+  border: 1px solid var(--console-border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: 1.35rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .filters-header {
@@ -1611,6 +1687,8 @@ button, input, select, textarea {
   align-items: center;
   font-weight: 600;
   font-size: 0.95rem;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
 }
 
 .filter-group {
@@ -1633,7 +1711,8 @@ button, input, select, textarea {
 .filters-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
   z-index: 50;
   display: flex;
   justify-content: flex-end;
@@ -1642,7 +1721,8 @@ button, input, select, textarea {
 .filters-drawer-panel {
   width: 100%;
   max-width: 340px;
-  background: var(--bg-surface);
+  background: var(--console-bg-surface);
+  border-left: 1px solid var(--console-border-subtle);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -1668,13 +1748,62 @@ button, input, select, textarea {
 }
 
 .jobs-results-header {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .results-count-text {
   font-size: 0.95rem;
   color: var(--text-secondary);
   font-weight: 500;
+}
+
+/* Active Filter Chips Strip */
+.active-filters-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.active-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.28);
+  color: #7dd3fc;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.active-filter-pill:hover {
+  background: rgba(14, 165, 233, 0.18);
+  border-color: rgba(14, 165, 233, 0.45);
+}
+
+.pill-remove-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  margin-left: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.pill-remove-btn:hover {
+  color: #f87171;
 }
 
 .jobs-grid, .saved-jobs-grid {
@@ -1725,7 +1854,8 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
   color: var(--text-muted);
 }
 
@@ -1733,6 +1863,17 @@ button, input, select, textarea {
   display: inline-flex;
   align-items: center;
   color: var(--color-accent-light);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--border-medium);
+  user-select: none;
 }
 
 .breadcrumb-current {
@@ -1744,10 +1885,24 @@ button, input, select, textarea {
 }
 
 .job-header-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: radial-gradient(120% 120% at 0% 0%, rgba(14, 165, 233, 0.08) 0%, rgba(14, 21, 36, 0.95) 50%, var(--console-bg-surface) 100%);
+  border: 1px solid var(--console-border-subtle);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.job-header-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0ea5e9, #6366f1, transparent);
+  opacity: 0.8;
 }
 
 .header-top-split {
@@ -1779,6 +1934,7 @@ button, input, select, textarea {
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.25;
+  letter-spacing: -0.015em;
 }
 
 .job-meta-chips {
@@ -1792,9 +1948,10 @@ button, input, select, textarea {
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  font-size: 0.825rem;
+  font-size: 0.8rem;
   background: rgba(255, 255, 255, 0.04);
-  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border-subtle);
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
 }
@@ -1821,7 +1978,11 @@ button, input, select, textarea {
 }
 
 .score-box-label {
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
 }
 
@@ -1834,6 +1995,7 @@ button, input, select, textarea {
 
 .btn-apply {
   padding: 0.55rem 1.15rem;
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.25);
 }
 
 .job-details-split-layout {
@@ -1880,22 +2042,29 @@ button, input, select, textarea {
 
 /* Sanitized Job Description HTML */
 .job-description-html {
-  font-size: 0.925rem;
-  line-height: 1.65;
-  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #e2e8f0;
+  max-width: 78ch;
 }
 
 .job-description-html p {
-  margin-bottom: 1rem;
+  margin-bottom: 1.15rem;
 }
 
 .job-description-html ul, .job-description-html ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.75rem;
 }
 
 .job-description-html li {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.45rem;
+  color: #cbd5e1;
+}
+
+.job-description-html strong, .job-description-html b {
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .job-description-html h1,
@@ -1903,13 +2072,16 @@ button, input, select, textarea {
 .job-description-html h3,
 .job-description-html h4 {
   color: var(--text-main);
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .job-description-html a {
   color: var(--color-accent-light);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .job-source-footer {
@@ -1921,6 +2093,13 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+@media (min-width: 1025px) {
+  .job-match-col {
+    position: sticky;
+    top: 5rem;
+  }
 }
 
 /* ==========================================================================
