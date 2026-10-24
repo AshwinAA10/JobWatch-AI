@@ -37,6 +37,14 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({ jobId, token }) => {
 
   if (!token || (!data && !isLoading && !error)) return null
 
+  const coverage = data
+    ? typeof data.required_coverage === 'number' && !isNaN(data.required_coverage)
+      ? Math.min(100, Math.max(0, Math.round(data.required_coverage * 100)))
+      : typeof data.coverage === 'number' && !isNaN(data.coverage)
+      ? Math.min(100, Math.max(0, Math.round(data.coverage * 100)))
+      : 0
+    : 0
+
   return (
     <div className="card skill-gap-card">
       <div className="skill-gap-header">
@@ -54,20 +62,20 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({ jobId, token }) => {
             <div className="flex-between mb-1">
               <span className="coverage-label">Requirement Coverage</span>
               <span className="coverage-val text-accent text-strong">
-                {Math.round(data.required_coverage * 100)}%
+                {coverage}%
               </span>
             </div>
             <div
               className="progress-track"
               role="progressbar"
-              aria-valuenow={Math.round(data.required_coverage * 100)}
+              aria-valuenow={coverage}
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label="Requirement Coverage"
             >
               <div
                 className="progress-fill bg-accent"
-                style={{ width: `${Math.min(100, Math.round(data.required_coverage * 100))}%` }}
+                style={{ width: `${coverage}%` }}
               />
             </div>
           </div>
