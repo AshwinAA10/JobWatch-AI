@@ -160,23 +160,83 @@ export const ApplicationsPage: React.FC = () => {
         {/* Stats strip */}
         {stats && (
           <div className="app-stats-grid mt-lg">
-            <div className="stat-card" onClick={() => updateParam('status', '')} role="button" tabIndex={0}>
+            <div
+              className={`stat-card ${!currentStatus ? 'stat-card-active' : ''}`}
+              onClick={() => updateParam('status', '')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  updateParam('status', '')
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Filter all applications"
+            >
               <span className="stat-label">Total Applications</span>
               <span className="stat-number">{stats.total}</span>
             </div>
-            <div className="stat-card stat-applied" onClick={() => updateParam('status', 'APPLIED')} role="button" tabIndex={0}>
+            <div
+              className={`stat-card stat-applied ${currentStatus === 'APPLIED' ? 'stat-card-active' : ''}`}
+              onClick={() => updateParam('status', 'APPLIED')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  updateParam('status', 'APPLIED')
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Filter applied applications"
+            >
               <span className="stat-label">Applied</span>
               <span className="stat-number text-blue">{stats.applied}</span>
             </div>
-            <div className="stat-card stat-interview" onClick={() => updateParam('status', 'INTERVIEW')} role="button" tabIndex={0}>
+            <div
+              className={`stat-card stat-interview ${currentStatus === 'INTERVIEW' ? 'stat-card-active' : ''}`}
+              onClick={() => updateParam('status', 'INTERVIEW')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  updateParam('status', 'INTERVIEW')
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Filter interview stage applications"
+            >
               <span className="stat-label">Interviews</span>
               <span className="stat-number text-amber">{stats.interview}</span>
             </div>
-            <div className="stat-card stat-offer" onClick={() => updateParam('status', 'OFFER')} role="button" tabIndex={0}>
+            <div
+              className={`stat-card stat-offer ${currentStatus === 'OFFER' ? 'stat-card-active' : ''}`}
+              onClick={() => updateParam('status', 'OFFER')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  updateParam('status', 'OFFER')
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Filter offer stage applications"
+            >
               <span className="stat-label">Offers</span>
               <span className="stat-number text-emerald">{stats.offer}</span>
             </div>
-            <div className="stat-card stat-rejected" onClick={() => updateParam('status', 'REJECTED')} role="button" tabIndex={0}>
+            <div
+              className={`stat-card stat-rejected ${currentStatus === 'REJECTED' ? 'stat-card-active' : ''}`}
+              onClick={() => updateParam('status', 'REJECTED')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  updateParam('status', 'REJECTED')
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Filter rejected applications"
+            >
               <span className="stat-label">Rejected</span>
               <span className="stat-number text-rose">{stats.rejected}</span>
             </div>
