@@ -56,8 +56,25 @@ export const AppLayout: React.FC = () => {
     setMobileMenuOpen(false)
   }
 
+  // Keyboard accessibility: Escape closes mobile menu
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeMobileMenu()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [mobileMenuOpen])
+
   return (
     <div className="app-shell">
+      {/* Accessible Keyboard Navigation Skip Link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
       {/* Top Navbar */}
       <header className="app-header">
         <div className="header-inner">
@@ -167,101 +184,113 @@ export const AppLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Navigation Drawer & Backdrop */}
         {mobileMenuOpen && (
-          <div className="mobile-nav-drawer" role="dialog" aria-modal="true">
-            <div className="mobile-user-info">
-              <div className="avatar-circle">
-                <User size={16} />
+          <>
+            <div
+              className="mobile-nav-backdrop"
+              onClick={closeMobileMenu}
+              aria-hidden="true"
+            />
+            <div
+              className="mobile-nav-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile Navigation Menu"
+            >
+              <div className="mobile-user-info">
+                <div className="avatar-circle">
+                  <User size={16} />
+                </div>
+                <span className="mobile-email">{user?.email}</span>
               </div>
-              <span className="mobile-email">{user?.email}</span>
+
+              <nav className="mobile-nav-links" aria-label="Mobile Nav">
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <LayoutDashboard size={18} />
+                  <span>Dashboard</span>
+                </NavLink>
+
+                <NavLink
+                  to="/jobs"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <Briefcase size={18} />
+                  <span>Discover Jobs</span>
+                </NavLink>
+
+                <NavLink
+                  to="/applications"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <ClipboardList size={18} />
+                  <span>Applications</span>
+                </NavLink>
+
+                <NavLink
+                  to="/saved"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <Bookmark size={18} />
+                  <span>Saved Jobs</span>
+                </NavLink>
+
+                <NavLink
+                  to="/notifications"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <Bell size={18} />
+                  <span>Alerts & Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="badge badge-accent ml-auto">{unreadCount}</span>
+                  )}
+                </NavLink>
+
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <User size={18} />
+                  <span>Candidate Profile</span>
+                </NavLink>
+
+                <NavLink
+                  to="/settings"
+                  className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  <Settings size={18} />
+                  <span>Settings & Alerts</span>
+                </NavLink>
+
+                <button
+                  type="button"
+                  className="mobile-nav-link mobile-logout-link"
+                  onClick={() => {
+                    closeMobileMenu()
+                    handleLogout()
+                  }}
+                >
+                  <LogOut size={18} />
+                  <span>Sign Out</span>
+                </button>
+              </nav>
             </div>
-
-            <nav className="mobile-nav-links">
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <LayoutDashboard size={18} />
-                <span>Dashboard</span>
-              </NavLink>
-
-              <NavLink
-                to="/jobs"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <Briefcase size={18} />
-                <span>Discover Jobs</span>
-              </NavLink>
-
-              <NavLink
-                to="/applications"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <ClipboardList size={18} />
-                <span>Applications</span>
-              </NavLink>
-
-              <NavLink
-                to="/saved"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <Bookmark size={18} />
-                <span>Saved Jobs</span>
-              </NavLink>
-
-              <NavLink
-                to="/notifications"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <Bell size={18} />
-                <span>Alerts & Notifications</span>
-                {unreadCount > 0 && (
-                  <span className="badge badge-accent ml-auto">{unreadCount}</span>
-                )}
-              </NavLink>
-
-              <NavLink
-                to="/profile"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <User size={18} />
-                <span>Candidate Profile</span>
-              </NavLink>
-
-              <NavLink
-                to="/settings"
-                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-                onClick={closeMobileMenu}
-              >
-                <Settings size={18} />
-                <span>Settings & Alerts</span>
-              </NavLink>
-
-              <button
-                type="button"
-                className="mobile-nav-link mobile-logout-link"
-                onClick={() => {
-                  closeMobileMenu()
-                  handleLogout()
-                }}
-              >
-                <LogOut size={18} />
-                <span>Sign Out</span>
-              </button>
-            </nav>
-          </div>
+          </>
         )}
       </header>
 
-      {/* Main Page Content */}
-      <main className="app-main-content">
+      {/* Main Page Content Landmark */}
+      <main id="main-content" className="app-main-content" tabIndex={-1}>
         <Outlet />
       </main>
 
@@ -272,7 +301,7 @@ export const AppLayout: React.FC = () => {
             JobWatch AI · Autonomous Career Opportunity Intelligence
           </p>
           <div className="footer-links">
-            <span className="footer-badge">Phase 9 UI</span>
+            <span className="footer-badge">Career Intelligence Console</span>
           </div>
         </div>
       </footer>
