@@ -83,3 +83,40 @@ def test_health_db_endpoint_failure(client: TestClient, monkeypatch) -> None:
     # Ensure no credentials or stack traces appear
     assert "password" not in str(data).lower()
     assert "traceback" not in str(data).lower()
+
+
+def test_root_health_db_endpoint_failure(client: TestClient, monkeypatch) -> None:
+    """Verify that GET /health/db returns 503 without leaking credentials on failure."""
+    import app.core.database as db_mod
+
+    monkeypatch.setattr(
+        db_mod,
+        "check_database_health",
+        lambda: (False, 25.0, "Database connection failed"),
+    )
+    response = client.get("/health/db")
+    assert response.status_code == 503
+
+    data = response.json()
+    assert "detail" in data
+    assert data["detail"]["status"] == "unhealthy"
+    assert data["detail"]["database"] == "disconnected"
+
+
+def test_health_db_endpoint_unexpected_exception(client: TestClient, monkeypatch) -> None:
+    """Verify that GET /api/v1/health/db returns 503 when health check raises an unexpected error."""
+    import app.core.database as db_mod
+
+    def _raise_error():
+        raise RuntimeError("Unexpected socket disconnect")
+
+    monkeypatch.setattr(db_mod, "check_database_health", _raise_error)
+    response = client.get("/api/v1/health/db")
+    assert response.status_code == 503
+
+    data = response.json()
+    assert "detail" in data
+    assert data["detail"]["status"] == "unhealthy"
+    assert data["detail"]["database"] == "disconnected"
+    assert "password" not in str(data).lower()
+    assert "traceback" not in str(data).lower()
