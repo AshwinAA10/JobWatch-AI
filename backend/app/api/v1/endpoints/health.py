@@ -2,10 +2,15 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.config import Settings, get_settings
-from app.core.database import check_database_health
+from app.core import database
 from app.schemas.health import DatabaseHealthResponse, HealthResponse
 
 router = APIRouter()
+
+
+def check_database_health():
+    """Delegate to database module to allow module-level monkeypatching and dynamic resolution."""
+    return database.check_database_health()
 
 
 @router.get(
@@ -63,7 +68,17 @@ def get_readiness() -> DatabaseHealthResponse:
 )
 def get_db_health() -> DatabaseHealthResponse:
     """Probe database connectivity and report readiness."""
-    is_healthy, latency_ms, error = check_database_health()
+    try:
+        is_healthy, latency_ms, error = check_database_health()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "unhealthy",
+                "database": "disconnected",
+                "error": "Database connection failed",
+            },
+        )
     if not is_healthy:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -37,46 +37,62 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({ jobId, token }) => {
 
   if (!token || (!data && !isLoading && !error)) return null
 
+  const coverage = data
+    ? typeof data.required_coverage === 'number' && !isNaN(data.required_coverage)
+      ? Math.min(100, Math.max(0, Math.round(data.required_coverage * 100)))
+      : typeof data.coverage === 'number' && !isNaN(data.coverage)
+      ? Math.min(100, Math.max(0, Math.round(data.coverage * 100)))
+      : 0
+    : 0
+
   return (
-    <div className="card skill-gap-card" style={{ marginTop: '1rem', padding: '1.25rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        <Sparkles size={18} color="#2563eb" />
-        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600 }}>Skill Gap & Transferability</h4>
+    <div className="card skill-gap-card">
+      <div className="skill-gap-header">
+        <Sparkles size={16} className="text-accent" />
+        <h4 className="skill-gap-title">Skill Gap & Transferability</h4>
       </div>
 
-      {isLoading && <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Analyzing skill ontology...</p>}
+      {isLoading && <p className="text-muted text-sm">Analyzing skill ontology...</p>}
 
-      {error && <p style={{ fontSize: '0.875rem', color: '#ef4444' }}>Unable to load skill gap analysis.</p>}
+      {error && <p className="text-danger text-sm">Unable to load skill gap analysis.</p>}
 
       {data && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem' }}>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-              <span style={{ fontWeight: 500 }}>Requirement Coverage</span>
-              <span style={{ fontWeight: 600, color: '#2563eb' }}>{Math.round(data.required_coverage * 100)}%</span>
+        <div className="skill-gap-body">
+          <div className="skill-gap-coverage-section">
+            <div className="flex-between mb-1">
+              <span className="coverage-label">Requirement Coverage</span>
+              <span className="coverage-val text-accent text-strong">
+                {coverage}%
+              </span>
             </div>
-            <div style={{ width: '100%', height: '6px', background: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+            <div
+              className="progress-track"
+              role="progressbar"
+              aria-valuenow={coverage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Requirement Coverage"
+            >
               <div
-                style={{
-                  width: `${Math.min(100, Math.round(data.required_coverage * 100))}%`,
-                  height: '100%',
-                  background: '#2563eb',
-                  borderRadius: '4px',
-                }}
+                className="progress-fill bg-accent"
+                style={{ width: `${coverage}%` }}
               />
             </div>
           </div>
 
           {/* Transferable Skills Highlight */}
           {data.transferable_matches && data.transferable_matches.length > 0 && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '0.75rem' }}>
-              <span style={{ fontWeight: 600, color: '#166534', display: 'block', marginBottom: '0.25rem' }}>
+            <div className="transferable-skills-banner">
+              <span className="transferable-badge-title">
                 Transferable Skills Detected:
               </span>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#15803d' }}>
+              <ul className="transferable-list">
                 {data.transferable_matches.map((item: any, idx: number) => (
-                  <li key={idx} style={{ marginBottom: '0.2rem' }}>
-                    <strong>{item.matched_via}</strong> <ArrowRight size={12} style={{ display: 'inline', margin: '0 2px' }} /> fulfills <strong>{item.target_skill}</strong> ({Math.round(item.transfer_weight * 100)}% transfer)
+                  <li key={idx} className="transferable-item">
+                    <span className="skill-source">{item.matched_via}</span>
+                    <ArrowRight size={11} className="icon-transfer" />
+                    <span className="skill-target">{item.target_skill}</span>
+                    <span className="transfer-weight">({Math.round(item.transfer_weight * 100)}% transfer)</span>
                   </li>
                 ))}
               </ul>
@@ -85,23 +101,13 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({ jobId, token }) => {
 
           {/* Missing Skills */}
           {data.missing_required && data.missing_required.length > 0 && (
-            <div>
-              <span style={{ color: '#b91c1c', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <AlertCircle size={14} /> Missing Required Skills:
+            <div className="missing-skills-section">
+              <span className="missing-skills-title">
+                <AlertCircle size={13} className="icon-mr text-danger" /> Missing Required Skills:
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.35rem' }}>
+              <div className="missing-tags-flex">
                 {data.missing_required.map((skill: string, idx: number) => (
-                  <span
-                    key={idx}
-                    style={{
-                      background: '#fee2e2',
-                      color: '#991b1b',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 500,
-                    }}
-                  >
+                  <span key={idx} className="badge badge-missing">
                     {skill}
                   </span>
                 ))}
@@ -113,3 +119,4 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({ jobId, token }) => {
     </div>
   )
 }
+

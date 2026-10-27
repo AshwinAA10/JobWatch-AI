@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Bookmark } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { fetchSavedJobs } from '../../services/jobs'
@@ -13,6 +14,7 @@ const PAGE_SIZE = 12
 
 export const SavedJobsPage: React.FC = () => {
   const { token } = useAuth()
+  const navigate = useNavigate()
   const [savedItems, setSavedItems] = useState<SavedJobItem[]>([])
   const [total, setTotal] = useState<number>(0)
   const [totalPages, setTotalPages] = useState<number>(0)
@@ -74,7 +76,7 @@ export const SavedJobsPage: React.FC = () => {
           title="You haven't saved any jobs yet"
           description="Bookmark interesting job postings while exploring opportunities to keep track of them here."
           actionLabel="Explore Recommended Jobs"
-          onAction={() => (window.location.href = '/jobs')}
+          onAction={() => navigate('/jobs')}
         />
       )}
 

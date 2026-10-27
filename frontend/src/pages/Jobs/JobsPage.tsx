@@ -181,15 +181,86 @@ export const JobsPage: React.FC = () => {
         {/* Jobs List Area */}
         <main className="jobs-list-area">
           <div className="jobs-results-header">
-            <h2 className="results-count-text">
-              {isLoading ? (
-                'Searching opportunities...'
-              ) : (
-                <>
-                  Found <span className="text-strong">{total}</span> career opportunities
-                </>
+            <div className="flex-between flex-wrap gap-xs">
+              <h2 className="results-count-text">
+                {isLoading ? (
+                  'Searching opportunities...'
+                ) : (
+                  <>
+                    Found <span className="text-strong font-mono">{total}</span> career opportunities
+                  </>
+                )}
+              </h2>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  type="button"
+                  className="btn-link btn-xs text-muted"
+                  onClick={handleResetFilters}
+                  title="Clear all active filters"
+                >
+                  Clear all ({activeFiltersCount})
+                </button>
               )}
-            </h2>
+            </div>
+
+            {/* Active Filter Chips Strip */}
+            {activeFiltersCount > 0 && (
+              <div className="active-filters-strip flex-wrap gap-xs mt-2" aria-label="Active filters">
+                {location && (
+                  <span className="badge badge-secondary active-filter-pill">
+                    Location: {location}
+                    <button
+                      type="button"
+                      className="pill-remove-btn"
+                      onClick={() => updateURLParams({ location: null, page: 1 })}
+                      aria-label={`Remove location filter ${location}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {workplaceType && (
+                  <span className="badge badge-secondary active-filter-pill">
+                    Workplace: {workplaceType}
+                    <button
+                      type="button"
+                      className="pill-remove-btn"
+                      onClick={() => updateURLParams({ workplace_type: null, page: 1 })}
+                      aria-label={`Remove workplace filter ${workplaceType}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {employmentType && (
+                  <span className="badge badge-secondary active-filter-pill">
+                    Type: {employmentType.replace('_', ' ')}
+                    <button
+                      type="button"
+                      className="pill-remove-btn"
+                      onClick={() => updateURLParams({ employment_type: null, page: 1 })}
+                      aria-label={`Remove employment type filter ${employmentType}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {minMatch && (
+                  <span className="badge badge-accent active-filter-pill">
+                    Match ≥ {minMatch}%
+                    <button
+                      type="button"
+                      className="pill-remove-btn"
+                      onClick={() => updateURLParams({ min_match: null, page: 1 })}
+                      aria-label={`Remove minimum match score filter ${minMatch}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {isLoading && <LoadingSkeleton count={4} type="card" />}
